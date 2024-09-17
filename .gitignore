@@ -1,0 +1,5 @@
+node_modules
+app/.env
+app/expo-env.d.ts
+app/env.d.ts
+app/.expo
