@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install-dependencies": "cd vibra_frontend && npm install",
     "start-web": "cd vibra_frontend && npm run web",
     "start-ios": "cd vibra_frontend && npm run ios",
     "start-android": "cd vibra_frontend && npm run android",
