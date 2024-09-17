@@ -1,0 +1,23 @@
+{
+  "name": "vibra-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-web": "cd vibra_frontend && npm run web",
+    "start-ios": "cd vibra_frontend && npm run ios",
+    "start-android": "cd vibra_frontend && npm run android",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jros00/vibra-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jros00/vibra-frontend/issues"
+  },
+  "homepage": "https://github.com/jros00/vibra-frontend#readme"
+}
