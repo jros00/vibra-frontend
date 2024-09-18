@@ -1,17 +1,17 @@
-# Installation process
+# The core of VIBRA's frontend.
 
-For new developers, you will have to complete a few steps.
+## Installation Process (IMPORTANT):
 
-## Install dependencies
+    1. Pull from branch main on github repo
+    2. Install dependencies through this script: `npm run install-dependencies``
+    3. Create a file called config.json inside vibra/. Add your local WIFI IP Adress there like 
+        {
+            "MY_IP": "XXX.XXX.XX"
+        }
+    4. Start server by running: `npm run start`
+    5. NOTE: Ideally, create a new branch by your name i.e. 'Johannes' and work and commit on this branch.
 
-run the following in the root terminal: `install-dependencies`
+## LOG
 
-## Create .env file
-    In vibra_frontend/ you will have to create .env, and you will have to enter your computers IP adress that will be hosting the backend server.
-
-    `MY_IP=XXX...`
-
-## Host the app:
-    `npm run start-web`
-    `npm run start-ios`
-    `npm run start-android`
+    1. (Done) Created a new expo app using: `npx create-expo-app vibra --template tabs`
+    2. (Done) Installed axios: `cd vibra && npm install axios`
