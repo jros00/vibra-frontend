@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import Colors from '@/constants/Colors';
 
 
 interface SongCardProps {
@@ -20,10 +21,6 @@ const SongCard: React.FC<SongCardProps> = ({image, title, description}) => {
           resizeMode="cover"
         />
       </View>
-
-      {/* Title and Sample Text */}
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.sampleText}>{description}</Text>
     </View>
   );
 };
@@ -34,9 +31,10 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: width * 0.9, // Covers roughly 90% of screen width
     padding: 20,
+    opacity: 0.5,
     borderRadius: 10,
-    backgroundColor: '#fff',
     shadowColor: '#000',
+    backgroundColor: Colors.lightRed,
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -45,13 +43,15 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   imageContainer: {
+    opacity: 1,
     width: '100%',
-    height: height * 0.4, // Takes roughly 40% of screen height
+    height: height / 2, // Takes roughly 40% of screen height
     marginBottom: 15,
     borderRadius: 10,
     overflow: 'hidden',
   },
   image: {
+    opacity: 1,
     width: '100%',
     height: '100%',
   },

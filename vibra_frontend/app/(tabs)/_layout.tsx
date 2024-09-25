@@ -21,15 +21,21 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.textColorLight,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        tabBarActiveBackgroundColor: Colors.lightRed,
+        tabBarInactiveBackgroundColor: Colors.lightRed,
+        headerTintColor: Colors.textColorLight
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
+          headerStyle: {
+            backgroundColor: Colors.lightRed
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -38,7 +44,7 @@ export default function TabLayout() {
                   <FontAwesome
                     name="info-circle"
                     size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
+                    color={Colors.textColorLight}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
@@ -51,6 +57,9 @@ export default function TabLayout() {
         name="for_you"
         options={{
           title: 'For You',
+          headerStyle: {
+            backgroundColor: Colors.lightRed
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />

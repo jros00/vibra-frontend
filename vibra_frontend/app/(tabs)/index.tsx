@@ -15,9 +15,8 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = `http://${config.MY_IP}:8000/api/welcome/`;
+    const apiUrl = `http://localhost:8000/home/welcome/`;
     console.log(URL);
-  
     axios
       .get(apiUrl)
       .then((response) => {
