@@ -4,20 +4,23 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-      "install-dependencies": "npm install && cd vibra_frontend && npm install",
-      "start": "cd vibra_frontend && npx expo start",
-      "start-lan": "cd vibra_frontend && npx expo start --lan",
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "install-dependencies": "npm install && cd vibra_frontend && npm install",
+        "start": "cd vibra_frontend && npx expo start",
+        "start-lan": "cd vibra_frontend && npx expo start --lan",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
-      "type": "git",
-      "url": "git+https://github.com/jros00/vibra-frontend.git"
+        "type": "git",
+        "url": "git+https://github.com/jros00/vibra-frontend.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-      "url": "https://github.com/jros00/vibra-frontend/issues"
+        "url": "https://github.com/jros00/vibra-frontend/issues"
     },
-    "homepage": "https://github.com/jros00/vibra-frontend#readme"
+    "homepage": "https://github.com/jros00/vibra-frontend#readme",
+    "dependencies": {
+        "expo-router": "^3.5.23"
+    }
 }
