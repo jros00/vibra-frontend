@@ -56,7 +56,7 @@ export default function TabOneScreen() {
   const handleLogin = async (userName: string) => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/for_you/', {
+      const response = await axios.post('http://localhost:8000/home/', {
         username: userName,
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
       });
