@@ -14,9 +14,14 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+<<<<<<< HEAD
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "@types/react-navigation": "^3.0.8",
+=======
+    "@react-navigation/stack":"^6.4.1",
+    "@react-navigation/native": "^6.0.2",
+>>>>>>> 9606ef4 (Added user login)
     "axios": "^1.7.7",
     "expo": "~51.0.28",
     "expo-av": "~14.0.7",
