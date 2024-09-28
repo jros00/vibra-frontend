@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { Platform } from 'react-native';
-import config from '../../config.json'
+import config from '../config.json'
 
 
 

@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import config from '../../config.json';
+import config from '../config.json';
 
 interface Participant {
   username: string;

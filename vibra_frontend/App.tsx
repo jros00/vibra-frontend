@@ -6,9 +6,9 @@ import { useColorScheme } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 // Import screens
-import ChatList from './app/tabs/chatList';
-import ForYou from './app/tabs/for_you';
-import TabOneScreen from './app/tabs/index'; // Import your index.tsx
+import ChatList from './screens/chatList';
+import ForYou from './screens/for_you';
+import TabOneScreen from './screens/index'; // Import your index.tsx
 import Chat from './app/chat';
 
 type RootStackParamList = {

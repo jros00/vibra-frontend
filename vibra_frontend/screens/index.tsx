@@ -6,14 +6,14 @@ import React, { useState } from 'react';
 import { Button, StyleSheet, Alert } from 'react-native';
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
 import { Text, View } from '@/components/Themed';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import axios from 'axios';
+import axios from 'axios';  // To make API requests
+import { useNavigation } from '@react-navigation/native';  // For navigation
 
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-import config from '../../config.json'
+import config from '../config.json'
 import Colors from '@/constants/Colors';
 =======
 const predefinedUsers = [
@@ -28,9 +28,8 @@ const predefinedUsers = [
 export default function TabOneScreen() {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();  // Use navigation hook
+  const navigation = useNavigation();
 
-<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -51,8 +50,6 @@ export default function TabOneScreen() {
         setLoading(false);
 =======
   // Function to simulate login as a selected user
-=======
->>>>>>> 0f84e89 (Added user login):vibra_frontend/app/(tabs)/index.tsx
   const handleLogin = async (userName: string) => {
     setLoading(true);
     try {
@@ -61,12 +58,13 @@ export default function TabOneScreen() {
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
       });
       
+      // Handle the response (assume a successful login)
       if (response.status === 200) {
         setCurrentUser(userName);
         Alert.alert('Success', `Logged in as ${userName}`);
         
-        // Navigate to user_list_screen
-        navigation.navigate('user-stack/user_list_screen');
+        // Navigate to user list page instead of directly to MessagesPage
+        navigation.navigate('user_list_screen');
       } else {
         Alert.alert('Login failed', 'Something went wrong');
       }
