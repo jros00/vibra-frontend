@@ -8,6 +8,7 @@ interface NowPlayingBarProps {
   }
   
   const NowPlayingBar: React.FC<NowPlayingBarProps> = ({ title, artist }) => {
+    console.log(title, artist);
     return (
       <View style={styles.container}>
         <Text style={styles.title}>{title}</Text>
@@ -22,7 +23,7 @@ interface NowPlayingBarProps {
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: '#A91D3A', // Dark background for the bar
+      backgroundColor: '#865DFF', // Dark background for the bar
       paddingVertical: 15,
       paddingHorizontal: 20,
       flexDirection: 'row',
