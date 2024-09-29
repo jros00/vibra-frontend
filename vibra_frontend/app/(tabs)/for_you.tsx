@@ -3,38 +3,40 @@ import { ViewToken } from 'react-native'; // Import types from React Native
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
 import { Text, View } from '@/components/Themed';
-import { SetStateAction, useEffect, useRef, useState } from 'react';
-import { Audio, InterruptionModeIOS, InterruptionModeAndroid  } from 'expo-av'; // Import Expo AV for audio playback
+import { useEffect, useRef, useState } from 'react';
+import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av'; // Import Expo AV for audio playback
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-import config from '../../config.json'
-
-
+import { useIsFocused } from '@react-navigation/native';
+import config from '../../config.json';
 
 const { height } = Dimensions.get('window');
 
 // Define the type for each song
 interface Song {
-  id: Number,
-  track_id: Number
-  album_image: URL;
-  artist_name: string;
-  audio_url: URL;
-  track_title: string;
+  id: number;
+  track_id: number;
+  album_image: string;
+  album_image_palette: Array<Array<number>>;
+  album_image_dominant_color: Array<number>;
+  album_name: string;
+  audio_url: string;
+  title: string;
 }
 
-
 export default function ForYouScreen() {
-  
-  const [songFeed, setSongFeed] = useState<Array<Song>>([]) // state to track the Song Feed
-  const [recommendations, setRecommendations] = useState<Array<Song>>([]); // state to track the recommendations
-  const [currentSong, setCurrentSong] = useState<Song | null>(null); // State to track the current song
-  const [cardHeight, setCardHeight] = useState<number>(0); // State to track the dynamic card height
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current; // Configuration for detecting which item is in view
+  // State management
+  const [songFeed, setSongFeed] = useState<Song[]>([]);
+  const [recommendations, setRecommendations] = useState<Song[]>([]);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [cardHeight, setCardHeight] = useState<number>(0);
+  const [playbackPosition, setPlaybackPosition] = useState<number>(0); // NEW: Store playback position
 
+  // Refs
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const isSoundLoading = useRef<boolean>(false);
 
-
+  // Configure audio settings
   const enableAudio = async () => {
     try {
       await Audio.setAudioModeAsync({
@@ -46,196 +48,163 @@ export default function ForYouScreen() {
         shouldDuckAndroid: false,
         playThroughEarpieceAndroid: false,
       });
-      console.log('Audio mode configured successfully');
+      console.info('Audio mode successfully configured.');
     } catch (error) {
       console.error('Failed to set audio mode:', error);
     }
   };
 
-  // Ref to hold the Audio.Sound object
-  const soundRef = useRef<Audio.Sound | null>(null);
-
-  // Get recommendations from back-end
-  const getRecommendations = async(id: Number) => {
+  // Fetch recommendations from the backend
+  const getRecommendations = async (id: number) => {
     const apiUrl = `http://localhost:8000/for_you/recommended/`;
     try {
-      const res = await axios.post(
-        apiUrl,
-        { track_id: id },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await axios.post(apiUrl, { track_id: id }, {
+        headers: { 'Content-Type': 'application/json' },
+      });
       setRecommendations(res.data);
     } catch (error) {
-      console.error('Error sending POST request', error);
+      console.error('Error sending POST request for recommendations:', error);
     }
   };
 
-  // NEW: Function to load initial recommendations (GET request)
-  const loadInitialRecommendations = async() => {
+  // Load initial recommendations on screen load
+  const loadInitialRecommendations = async () => {
     const apiUrl = `http://localhost:8000/for_you/recommended/`;
     try {
-      // Sending GET request instead of POST
       const res = await axios.get(apiUrl, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
-      setRecommendations(res.data); // Setting initial recommendations
+      setRecommendations(res.data);
+      console.info('Initial recommendations loaded.');
     } catch (error) {
-      console.error('Error sending GET request', error);
+      console.error('Error sending GET request for initial recommendations:', error);
     }
   };
 
-  // Trigger the initial GET request on page load
+  // Initialize audio settings and recommendations on component mount
   useEffect(() => {
     enableAudio();
-    loadInitialRecommendations(); // Load recommendations on page load
+    loadInitialRecommendations();
   }, []);
 
-   // Update the songFeed when recommendations change
-   useEffect(() => {
+  // Update song feed based on recommendations
+  useEffect(() => {
     if (recommendations && recommendations.length > 0) {
-
-      if (songFeed.length == 0) {
-
-        let feed: SetStateAction<Song[]> = []
-        let i = 0;
-
-        while (feed.length < 2) {
-          let song = {
-            id: i,
-            track_id: recommendations[i].track_id,
-            track_title: recommendations[i].track_title,
-            artist_name: recommendations[i].artist_name,
-            album_image: recommendations[i].album_image,
-            audio_url: recommendations[i].audio_url,
-          }
-          feed.push(song);
-          i++;
-        }
-        console.log('Updated feed:')
-        feed.forEach((el) => {
-          console.log(`${el.id} ${el.track_title}`)
-        });
+      if (songFeed.length === 0) {
+        const feed: Song[] = recommendations.slice(0, 2).map((rec, i) => ({
+          id: i,
+          track_id: rec.track_id,
+          title: rec.title,
+          album_name: rec.album_name,
+          album_image: rec.album_image,
+          album_image_palette: rec.album_image_palette,
+          album_image_dominant_color: rec.album_image_dominant_color,
+          audio_url: rec.audio_url,
+        }));
         setSongFeed(feed);
-      }
-
-      else if (currentSong && currentSong.id == songFeed[songFeed.length-1].id) {
-
-        console.info('Recommendations:')
-        recommendations.forEach(recommendation => {
-          console.log(recommendation);
-        })
-
-        let feed = [...songFeed];
+      } else if (currentSong && currentSong.id === songFeed[songFeed.length - 1].id) {
         let addedSong = false;
         let i = 0;
+        const feed = [...songFeed];
 
         while (!addedSong && i < recommendations.length) {
-          let song = {
+          const song = {
             id: songFeed.length + 1,
             track_id: recommendations[i].track_id,
-            track_title: recommendations[i].track_title,
-            artist_name: recommendations[i].artist_name,
+            title: recommendations[i].title,
+            album_name: recommendations[i].album_name,
             album_image: recommendations[i].album_image,
+            album_image_palette: recommendations[i].album_image_palette,
+            album_image_dominant_color: recommendations[i].album_image_dominant_color,
             audio_url: recommendations[i].audio_url,
-          }
-          console.log('Trying to add song: ', song.track_title);
-          if (songFeed.some(existingSong => existingSong.track_id === song.track_id)) {
-            console.log('Song already in song feed.');
-          }
-          else {
+          };
+
+          if (!songFeed.some((existingSong) => existingSong.track_id === song.track_id)) {
             feed.push(song);
             addedSong = true;
+          } else {
+            console.info('Song already exists in song feed.');
           }
           i++;
         }
-        console.log('Updated feed:')
-        feed.forEach((el) => {
-          console.log(`${el.id} ${el.track_title}`)
-        });
-        setSongFeed(feed); // Update song feed with new song
+        setSongFeed(feed);
       }
     }
   }, [recommendations]);
 
-
-  // NEW: Function to play the song
-  const playSong = async (audio_url: any) => {
-    // Stop and unload previous sound if any
-    if (soundRef.current) {
-      await soundRef.current.stopAsync();
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
+  // Play a song based on the audio URL and position
+  const playSong = async (audio_url: string, position: number = 0) => {
+    if (isSoundLoading.current) {
+      console.info('Song loading is already in progress.');
+      return;
     }
 
-    // Load and play new sound
+    isSoundLoading.current = true;
+
+    if (soundRef.current) {
+      try {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+      } catch (error) {
+        console.error('Error stopping sound:', error);
+      }
+    }
+
+    soundRef.current = null;
+
     try {
       const { sound } = await Audio.Sound.createAsync(
         { uri: audio_url },
-        { shouldPlay: true }
+        { shouldPlay: true, positionMillis: position }
       );
       soundRef.current = sound;
-      console.log('Playing sound: ', audio_url);
+      console.info(`Playing song from position ${position}`);
     } catch (error) {
       console.error('Error playing sound:', error);
     }
+
+    isSoundLoading.current = false;
   };
-  
 
-  // Handler when a song comes into focus
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
-      if (viewableItems.length > 0) {
-        const inFocus = viewableItems[0].item as Song; // Typecasting to Song
-        setCurrentSong(inFocus); // Update current song in focus
-        getRecommendations(inFocus.track_id);
-        console.log(`Current Song in Focus: ${inFocus.track_title}`); // Log or handle the current song (for example, fetch it from the backend)
-
-        // NEW: Play the song in focus
-        playSong(inFocus.audio_url)
-      }
+  // Detect when a song is in focus and play it
+  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
+    if (viewableItems.length > 0) {
+      const inFocusSong = viewableItems[0].item as Song;
+      setCurrentSong(inFocusSong);
+      getRecommendations(inFocusSong.track_id);
+      console.info(`Song in focus: ${inFocusSong.title}`);
+      playSong(inFocusSong.audio_url);
     }
-  ).current;
+  }).current;
 
-  // Function to dynamically capture the card's height when it renders
+  // Capture the height of each card dynamically
   const onCardLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
-    console.log('Height: ', height);
-    setCardHeight(height); // Set the height of the card dynamically
+    setCardHeight(height);
   };
 
+  // Handle playback when screen is focused/unfocused
+  const isFocused = useIsFocused();
 
-  // Use useFocusEffect to handle screen focus changes
-  useFocusEffect(
-    useCallback(() => {
-      // Screen is focused
-      console.log('ForYouScreen has focus');
-
-      // Optionally, you can resume playback if needed
-
-      return () => {
-        // Screen is unfocused
-        console.log('ForYouScreen lost focus');
-
-        // Stop and unload sound
-        if (soundRef.current) {
-          soundRef.current.stopAsync().then(() => {
-            soundRef.current?.unloadAsync();
-            soundRef.current = null;
-          }).catch((error) => {
-            console.error('Error stopping sound on screen unfocus:', error);
-          });
+  useEffect(() => {
+    if (isFocused && currentSong) {
+      console.info('Screen is focused, resuming playback.');
+      if (playbackPosition > 0) {
+        playSong(currentSong.audio_url, playbackPosition);
+      }
+    } else if (!isFocused && soundRef.current) {
+      console.info('Screen is unfocused, stopping playback.');
+      soundRef.current.getStatusAsync().then((status) => {
+        if (status.isLoaded) {
+          setPlaybackPosition(status.positionMillis);
         }
-      };
-    }, [])
-  );
-
-
+      });
+      soundRef.current.stopAsync().then(() => {
+        soundRef.current?.unloadAsync();
+        soundRef.current = null;
+      });
+    }
+  }, [isFocused]);
 
   return (
     <View>
@@ -245,35 +214,28 @@ export default function ForYouScreen() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View onLayout={onCardLayout}>
-            <SongCard
-              image={{ uri: item.album_image }}
-              title={item.track_title}
-              description={item.artist_name}
-            />
+            <SongCard image={{ uri: item.album_image }} palette={item.album_image_palette} dominantColor={item.album_image_dominant_color} />
           </View>
         )}
-        pagingEnabled={true} // Snap to each song card
-        showsVerticalScrollIndicator={false} // Hide scroll indicator
-        snapToAlignment="start" // Snap each song to the center of the screen
-        snapToInterval={cardHeight} //{cardHeight || height * 0.5} // Dynamically calculate the interval
-        decelerationRate="fast" // Make scrolling feel smooth
-        onViewableItemsChanged={onViewableItemsChanged} // Detect which item is in focus
-        viewabilityConfig={viewabilityConfig} // Config to detect when a song comes into focus
-        // Additional props
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        snapToAlignment="start"
+        snapToInterval={cardHeight}
+        decelerationRate="fast"
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
         bounces={false}
         overScrollMode="never"
       />
-      {/* Render the NowPlayingBar only if there's a current song */}
       {currentSong && (
         <NowPlayingBar
-          title={currentSong.track_title}
-          artist={currentSong.artist_name}
+          title={currentSong.title}
+          artist={currentSong.album_name}
         />
       )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   currentSongContainer: {
