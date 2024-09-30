@@ -1,14 +1,22 @@
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 import { StyleSheet } from 'react-native';
 
 =======
 import React, { useState } from 'react';
 import { Button, StyleSheet, Alert } from 'react-native';
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
+=======
+import { StyleSheet, ActivityIndicator } from 'react-native';
+import EditScreenInfo from '@/components/EditScreenInfo';
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
 import { Text, View } from '@/components/Themed';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { HelloWave } from '@/components/HelloWave';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import config from '../../config.json';
 
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -38,17 +46,32 @@ export default function TabOneScreen() {
   useEffect(() => {
     const apiUrl = `http://${config.MY_IP}:8000/home/welcome/`;
     console.log(URL);
+=======
+export default function HomeScreen() {
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const apiUrl = `http://${config.MY_IP}:8000/home/welcome/`;
+    console.log(apiUrl);
+    
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
     axios
       .get(apiUrl)
       .then((response) => {
         setMessage(response.data.message);
       })
       .catch((error) => {
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
         console.error(error);
+=======
+        console.error('Error fetching message:', error);
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
         setMessage('Error fetching message');
       })
       .finally(() => {
         setLoading(false);
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 =======
   // Function to simulate login as a selected user
 =======
@@ -59,29 +82,27 @@ export default function TabOneScreen() {
       const response = await axios.post('http://localhost:8000/home/', {
         username: userName,
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
+=======
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
       });
-      
-      if (response.status === 200) {
-        setCurrentUser(userName);
-        Alert.alert('Success', `Logged in as ${userName}`);
-        
-        // Navigate to user_list_screen
-        navigation.navigate('user-stack/user_list_screen');
-      } else {
-        Alert.alert('Login failed', 'Something went wrong');
-      }
-    } catch (error) {
-      console.error('Login Error:', error);
-      Alert.alert('Error', 'Unable to log in');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Choose a User to Login</Text>
+      <Text style={styles.title}>
+        {message}
+        <HelloWave />
+      </Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
       <Text style={styles.sampleText}>This is a test to see if backend communication works. If it says "Welcome to Vibra!" above this message, this means connection with backend is working.</Text>
 =======
@@ -101,6 +122,9 @@ export default function TabOneScreen() {
         </View>
       )}
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
+=======
+      <EditScreenInfo path="app/(tabs)/index.tsx" />
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
     </View>
   );
 }
@@ -121,6 +145,7 @@ const styles = StyleSheet.create({
     width: '80%',
   },
 <<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
+<<<<<<< HEAD:vibra_frontend/app/tabs/index.tsx
   sampleText: {
     fontSize: 16,
     textAlign: 'center',
@@ -131,4 +156,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
 >>>>>>> 9606ef4 (Added user login):vibra_frontend/app/(tabs)/index.tsx
   },
+=======
+>>>>>>> c7bae5d (Code for login, messages and notifications):vibra_frontend/app/(tabs)/index.tsx
 });

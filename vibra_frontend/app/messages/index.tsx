@@ -38,6 +38,7 @@ export default function UserListScreen() {
       params: { recipientId: friendId },    // Pass recipientId as a parameter
     });
   };
+  
 
   return (
     <View style={styles.container}>

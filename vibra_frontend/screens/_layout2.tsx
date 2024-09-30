@@ -22,9 +22,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.textColorLight,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        headerShown: useClientOnlyValue(false, true), // Prevent hydration errors on web
         tabBarActiveBackgroundColor: Colors.lightRed,
         tabBarInactiveBackgroundColor: Colors.lightRed,
         headerTintColor: Colors.textColorLight
@@ -34,9 +32,9 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           headerStyle: {
-            backgroundColor: Colors.lightRed
+            backgroundColor: Colors.lightRed,
           },
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,  // Updated icon
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -58,19 +56,19 @@ export default function TabLayout() {
         options={{
           title: 'For You',
           headerStyle: {
-            backgroundColor: Colors.lightRed
+            backgroundColor: Colors.lightRed,
           },
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="star" color={color} />,  // Updated icon
         }}
       />
       <Tabs.Screen
-        name="(user-stack)"
+        name="user_list_screen"
         options={{
-          title: 'Users',
+          title: 'Friends',
           headerStyle: {
-            backgroundColor: Colors.lightRed
+            backgroundColor: Colors.lightRed,
           },
-          tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,  // Different icon for friends list
         }}
       />
     </Tabs>
