@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { HelloWave } from '@/components/HelloWave';
 
@@ -8,6 +7,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import config from '../../config.json'
+import Colors from '@/constants/Colors';
 
 export default function TabOneScreen() {
 
@@ -15,7 +15,7 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = `http://localhost:8000/home/welcome/`;
+    const apiUrl = `http://192.168.86.209:8000/home/welcome/`;
     console.log(URL);
     axios
       .get(apiUrl)
@@ -35,7 +35,7 @@ export default function TabOneScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{message}<HelloWave/></Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      <Text style={styles.sampleText}>This is a test to see if backend communication works. If it says "Welcome to Vibra!" above this message, this means connection with backend is working.</Text>
     </View>
   );
 }
@@ -54,5 +54,10 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  sampleText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: Colors.textColorLight,
   },
 });

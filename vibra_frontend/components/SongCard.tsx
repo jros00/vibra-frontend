@@ -1,27 +1,44 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
-import Colors from '@/constants/Colors';
-
+import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface SongCardProps {
-    image: any; // Accepts the image source (can be a local image using require or a URI string)
-    title: string; // Title of the song
-    description: string; // Additional text or description under the title
-  }
-  
+  image: any; // Accepts the image source (can be a local image using require or a URI string)
+  palette?: Array<Array<number>>; // Optional array of arrays for colors
+  dominantColor?: Array<number>; // Optional dominant color array
+}
 
-const SongCard: React.FC<SongCardProps> = ({image, title, description}) => {
+// Utility function to convert RGB array to hex color string
+const rgbToHex = (rgb: number[] = []): string => {
   return (
-    <View style={styles.cardContainer}>
+    '#' +
+    rgb
+      .map((value) => {
+        const hex = value.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      })
+      .join('')
+  );
+};
+
+const SongCard: React.FC<SongCardProps> = ({ image, palette = [], dominantColor = [0, 0, 0] }) => {
+  // Convert the RGB arrays to hex strings
+  const dominantColorHex = rgbToHex(dominantColor);
+  const paletteHex = palette.map((rgbArray) => rgbToHex(rgbArray));
+
+  // Ensure we have at least two colors for the gradient
+  const gradientColors = [dominantColorHex, ...paletteHex];
+
+  // If fewer than two colors, add a fallback color
+  if (gradientColors.length < 2) {
+    gradientColors.push('#ffffff'); // Adding white as a fallback
+  }
+
+  return (
+    <LinearGradient colors={gradientColors} style={styles.cardContainer}>
       {/* Image Container */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={image}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      </View>
-    </View>
+      <Image source={image} style={styles.image} resizeMode="cover" />
+    </LinearGradient>
   );
 };
 
@@ -29,42 +46,27 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: width * 0.9, // Covers roughly 90% of screen width
+    // Card container covers whole screen
+    width: width,
+    height: height,
     padding: 20,
     opacity: 0.5,
-    borderRadius: 10,
     shadowColor: '#000',
-    backgroundColor: Colors.lightRed,
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
-    elevation: 5,
     alignSelf: 'center',
-    marginVertical: 20,
-  },
-  imageContainer: {
-    opacity: 1,
-    width: '100%',
-    height: height / 2, // Takes roughly 40% of screen height
-    marginBottom: 15,
-    borderRadius: 10,
-    overflow: 'hidden',
   },
   image: {
     opacity: 1,
     width: '100%',
-    height: '100%',
+    height: '60%',
+    alignSelf: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  sampleText: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#666',
+  gradient: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
   },
 });
 

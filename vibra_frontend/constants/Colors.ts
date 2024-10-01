@@ -1,10 +1,11 @@
 const tintColorLight = '#4C3BCF';
 const tintColorDark = '#C8ACD6';
 
-const darkBackground = '#151515' // dark shade
-const lightRed = '#C73659'; // light red shade 
+const darkBackground = '#191825' // dark shade
+const lightPurple = '#191825'; // light red shade 
 const textColorLight = '#EEEEEE' // white shade
-const darkRed = '#A91D3A'
+const darkPink = '#E384FF'
+const lightPink = "#FFA3FD";
 
 export default {
   light: {
@@ -12,17 +13,18 @@ export default {
     background: darkBackground,
     tint: tintColorLight,
     tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
+    tabIconSelected: darkPink,
   },
   dark: {
-    text: '#C8ACD6',
-    background: '#000',
+    text: textColorLight,
+    background: darkBackground,
     tint: tintColorDark,
     tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
+    tabIconSelected: darkPink,
   },
   darkBackground,
   textColorLight,
-  lightRed,
-  darkRed
+  lightPurple,
+  darkPink,
+  lightPink
 };
