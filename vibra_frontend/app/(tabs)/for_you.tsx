@@ -8,6 +8,7 @@ import { Audio, InterruptionModeIOS, InterruptionModeAndroid  } from 'expo-av'; 
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Platform } from 'react-native';
 import config from '../../config.json'
 
 
@@ -252,16 +253,16 @@ export default function ForYouScreen() {
             />
           </View>
         )}
-        pagingEnabled={true} // Snap to each song card
-        showsVerticalScrollIndicator={false} // Hide scroll indicator
-        snapToAlignment="start" // Snap each song to the center of the screen
-        snapToInterval={cardHeight} //{cardHeight || height * 0.5} // Dynamically calculate the interval
-        decelerationRate="fast" // Make scrolling feel smooth
-        onViewableItemsChanged={onViewableItemsChanged} // Detect which item is in focus
-        viewabilityConfig={viewabilityConfig} // Config to detect when a song comes into focus
-        // Additional props
+        // Conditionally set props based on the platform
+        pagingEnabled={Platform.OS !== 'web'} // Enable paging only on mobile
+        showsVerticalScrollIndicator={false}
+        snapToAlignment={Platform.OS !== 'web' ? 'start' : undefined}
+        snapToInterval={Platform.OS !== 'web' ? cardHeight : undefined}
+        decelerationRate={Platform.OS !== 'web' ? 'fast' : undefined}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
         bounces={false}
-        overScrollMode="never"
+        overScrollMode="never" // This prop can be left as is; it doesn't affect web
       />
       {/* Render the NowPlayingBar only if there's a current song */}
       {currentSong && (
