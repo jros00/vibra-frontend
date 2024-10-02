@@ -58,7 +58,7 @@ export default function ForYouScreen() {
 
   // Get recommendations from back-end
   const getRecommendations = async(id: Number) => {
-    const apiUrl = `http://192.168.86.209:8000/for_you/recommended/`;
+    const apiUrl = `http://${config.MY_IP}:8000/for_you/recommended/`;
     try {
       const res = await axios.post(
         apiUrl,
@@ -77,7 +77,7 @@ export default function ForYouScreen() {
 
   // NEW: Function to load initial recommendations (GET request)
   const loadInitialRecommendations = async() => {
-    const apiUrl = `http://192.168.86.209:8000/for_you/recommended/`;
+    const apiUrl = `http://${config.MY_IP}:8000/for_you/recommended/`;
     try {
       // Sending GET request instead of POST
       const res = await axios.get(apiUrl, {
