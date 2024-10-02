@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import config from '../../config.json'
 
 const ChatList = ({ navigation }) => {
   const [chats, setChats] = useState([]);
@@ -8,7 +9,7 @@ const ChatList = ({ navigation }) => {
 
   // Fetch the chat list from the backend
   const getChats = async () => {
-    const apiUrl = `http://localhost:8000`; // Your backend API endpoint
+    const apiUrl = `http://${config.MY_IP}:8000/for_you/recommended/`; // Your backend API endpoint
     try {
       const res = await axios.get(apiUrl); // No need for authorization for now
       setChats(res.data); // Assuming the response contains the chat data
