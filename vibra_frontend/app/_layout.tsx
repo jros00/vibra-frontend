@@ -5,6 +5,8 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import ChatNavigator from './Navigation/ChatNavigator';
+
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -53,6 +55,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="ChatNavigator" component={ChatNavigator} options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

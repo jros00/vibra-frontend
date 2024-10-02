@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import config from '../../config.json'
+import config from '../../config.json';
+
+interface Participant {
+  username: string;
+  profile_picture: string;
+}
+
+interface Chat {
+  id: number;
+  participants: Participant[];
+  last_message: string;
+  last_message_timestamp: string;
+}
 
 const ChatList = ({ navigation }) => {
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the chat list from the backend
   const getChats = async () => {
-    const apiUrl = `http://${config.MY_IP}:8000/for_you/recommended/`; // Your backend API endpoint
+    const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
     try {
-      const res = await axios.get(apiUrl); // No need for authorization for now
-      setChats(res.data); // Assuming the response contains the chat data
+      const res = await axios.get(apiUrl);
+      setChats(res.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching chat data', error);
@@ -20,7 +31,6 @@ const ChatList = ({ navigation }) => {
     }
   };
 
-  // Fetch chats when the component is mounted
   useEffect(() => {
     getChats();
   }, []);
@@ -38,7 +48,7 @@ const ChatList = ({ navigation }) => {
       data={chats}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => navigation.navigate('Chat', { chatId: item.id })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ChatNavigator', { chatId: item.id })}>
           <View style={styles.chatItem}>
             <Image source={{ uri: 'https://example.com/default-profile.png' }} style={styles.profilePicture} />
             <View>
