@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { useRouter } from 'expo-router'; // Use expo-router's navigation
+import { useNavigation } from '@react-navigation/native';
 import config from '../../config.json';
 
 interface Participant {
@@ -20,7 +20,7 @@ const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter();  // Use expo-router's router
+  const navigation = useNavigation();  // React Navigation's useNavigation
 
   const getChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
@@ -51,7 +51,7 @@ const ChatList = () => {
       data={chats}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => router.push(`/chatNavigator?chatId=${item.id}`)}>
+        <TouchableOpacity onPress={() => navigation.navigate('Chat', { chatId: item.id })}>
           <View style={styles.chatItem}>
             <Image source={{ uri: 'https://example.com/default-profile.png' }} style={styles.profilePicture} />
             <View>
