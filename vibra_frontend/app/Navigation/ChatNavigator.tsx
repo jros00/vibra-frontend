@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import ChatList from '../(tabs)/chatList';
+import ChatList from '../tabs/chatList';
 import Chat from '../chat';
 
 // Define the stack navigator

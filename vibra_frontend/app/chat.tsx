@@ -2,72 +2,54 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet } from 'react-native';
 import axios from 'axios';
 import config from '../config.json';
-import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 
-
-// Define the type for the navigation stack
+// Define the param list for the stack navigator
 type RootStackParamList = {
-    Chat: { chatId: number }; // Define the params expected by the Chat screen
-  };
-  
-  // Define the type for the route and navigation props
-  type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
-  type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>;
+  ChatList: undefined;
+  Chat: { chatId: number };
+};
+
+// Define the types for the navigation and route props
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Chat'>;
+type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 
 interface ChatProps {
-    route: ChatScreenRouteProp;
-    navigation: ChatScreenNavigationProp;
-}
-  
-
-// Define types for sender and message
-interface Sender {
-  username: string;
-  profile_picture: string;
+  navigation: ChatScreenNavigationProp;
+  route: ChatScreenRouteProp;
 }
 
+// Define the Message type
 interface Message {
   id: number;
-  sender: Sender;
   text: string;
   timestamp: string;
+  sender: {
+    username: string;
+    profile_picture: string;
+  };
 }
 
-const Chat: React.FC<ChatProps> = ({ route }) => {
-  const { chatId } = route.params; // Get the chat ID from route parameters
-  const [messages, setMessages] = useState<Message[]>([]); // Define the state as an array of Message
+const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
+  const { chatId } = route.params;  // Get the chat ID from route parameters
+  const [messages, setMessages] = useState<Message[]>([]);  // Type messages as an array of Message
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Fetch the messages for this specific chat
-  const getMessages = async () => {
-    const apiUrl = `http://${config.MY_IP}:8000/conversations/${chatId}/messages/`;
-    try {
-      const res = await axios.get(apiUrl);
-      setMessages(res.data);  // Assuming the response contains the message data
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching messages', error);
-      setLoading(false);
-    }
-  };
-
-  // Send a new message
-  const sendMessage = async () => {
-    const apiUrl = `http://${config.MY_IP}:8000/conversations/${chatId}/messages/`;
-    try {
-      await axios.post(apiUrl, { text: newMessage }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      setNewMessage('');
-      getMessages();  // Refresh messages after sending
-    } catch (error) {
-      console.error('Error sending message', error);
-    }
-  };
-
   useEffect(() => {
+    const getMessages = async () => {
+      const apiUrl = `http://${config.MY_IP}:8000/conversations/${chatId}/messages/`;
+      try {
+        const res = await axios.get(apiUrl);
+        setMessages(res.data);  // Assuming the API response is an array of Message objects
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching messages', error);
+        setLoading(false);
+      }
+    };
+
     getMessages();
   }, [chatId]);
 
@@ -81,13 +63,12 @@ const Chat: React.FC<ChatProps> = ({ route }) => {
         data={messages}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={[styles.message, item.sender.username === 'me' ? styles.myMessage : styles.theirMessage]}>
+          <View style={styles.message}>
             <Text>{item.text}</Text>
             <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
           </View>
         )}
       />
-
       <View style={styles.inputContainer}>
         <TextInput
           value={newMessage}
@@ -95,7 +76,7 @@ const Chat: React.FC<ChatProps> = ({ route }) => {
           style={styles.input}
           placeholder="Type a message"
         />
-        <Button title="Send" onPress={sendMessage} />
+        <Button title="Send" onPress={() => {/* Send message logic */}} />
       </View>
     </View>
   );
@@ -110,14 +91,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 5,
     borderRadius: 5,
-  },
-  myMessage: {
-    backgroundColor: '#daf8e3',
-    alignSelf: 'flex-end',
-  },
-  theirMessage: {
-    backgroundColor: '#f1f1f1',
-    alignSelf: 'flex-start',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -136,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#666',
     marginTop: 5,
-  }
+  },
 });
 
 export default Chat;

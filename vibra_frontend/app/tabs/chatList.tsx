@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import config from '../../config.json';
 
 interface Participant {
@@ -16,11 +17,20 @@ interface Chat {
   last_message_timestamp: string;
 }
 
+// Define the param list for the navigation stack
+type RootStackParamList = {
+  ChatList: undefined;   // No params for ChatList
+  Chat: { chatId: number };  // chatId param for Chat screen
+};
+
+// Define the type for the navigation prop in ChatList
+type ChatListNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
+
 const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const navigation = useNavigation();  // React Navigation's useNavigation
+  const navigation = useNavigation<ChatListNavigationProp>();  // Typed navigation
 
   const getChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;

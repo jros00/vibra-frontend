@@ -6,13 +6,19 @@ import { useColorScheme } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 // Import screens
-import ChatList from './app/(tabs)/chatList';
-import ForYou from './app/(tabs)/for_you';
+import ChatList from './app/tabs/chatList';
+import ForYou from './app/tabs/for_you';
+import TabOneScreen from './app/tabs/index'; // Import your index.tsx
 import Chat from './app/chat';
 
+type RootStackParamList = {
+  ChatList: undefined;
+  Chat: { chatId: number };
+};
+
 // Create Tab Navigator and Stack Navigator
+const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -26,7 +32,15 @@ const App = () => {
 
 const MainNavigator = () => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName="Welcome">
+      <Tab.Screen
+        name="Welcome"
+        component={TabOneScreen}  // Add the Welcome screen as the first tab
+        options={{
+          tabBarIcon: ({ color }) => <FontAwesome name="home" size={24} color={color} />,
+          title: 'Welcome',
+        }}
+      />
       <Tab.Screen
         name="ForYou"
         component={ForYou}
