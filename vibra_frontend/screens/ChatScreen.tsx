@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet } from 'react-native';
-import axios from 'axios';
-import config from '../config.json';
+import { fetchMessages, sendMessage } from '../utils/MessageApi';  // Import the message API
+import { useWebSocket } from '@/hooks/useWebSocket';  // Import the WebSocket hook
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -23,7 +23,7 @@ interface ChatProps {
 // Define the Message type
 interface Message {
   id: number;
-  text: string;
+  content: string;
   timestamp: string;
   sender: {
     username: string;
@@ -37,21 +37,44 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Fetch messages when the component mounts
   useEffect(() => {
     const getMessages = async () => {
-      const apiUrl = `http://${config.MY_IP}:8000/conversations/${chatId}/messages/`;
       try {
-        const res = await axios.get(apiUrl);
-        setMessages(res.data);  // Assuming the API response is an array of Message objects
-        setLoading(false);
+        const fetchedMessages = await fetchMessages(chatId);  // Use the API utility to fetch messages
+        setMessages(fetchedMessages);
       } catch (error) {
-        console.error('Error fetching messages', error);
+        console.error('Error fetching messages:', error);
+      } finally {
         setLoading(false);
       }
     };
 
     getMessages();
   }, [chatId]);
+
+  // WebSocket connection to listen for new messages
+  useWebSocket(`conversations/${chatId}`, (newData: Message) => {
+    // Handle incoming WebSocket messages by appending them to the messages list
+    setMessages((prevMessages) => [...prevMessages, newData]);
+  });
+
+  // Handle sending a new message
+  const handleSend = async () => {
+    if (newMessage.trim()) {
+      try {
+        const sentMessage = await sendMessage(chatId, newMessage);  // Use the API utility to send message
+        
+        // Append the new message only if it doesn't already exist
+        if (!messages.find((msg) => msg.id === sentMessage.id)) {
+          setMessages([...messages, sentMessage]);
+        }
+        setNewMessage('');  // Clear input field
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
+  };
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -64,7 +87,9 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.message}>
-            <Text>{item.text}</Text>
+            {/* Display sender's username and the message */}
+            <Text style={styles.sender}>{item.sender.username}:</Text>
+            <Text>{item.content}</Text>
             <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
           </View>
         )}
@@ -74,9 +99,9 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
           value={newMessage}
           onChangeText={setNewMessage}
           style={styles.input}
-          placeholder="Type a message"
+          placeholder="Type a message..."
         />
-        <Button title="Send" onPress={() => {/* Send message logic */}} />
+        <Button title="Send" onPress={handleSend} />
       </View>
     </View>
   );
@@ -90,7 +115,12 @@ const styles = StyleSheet.create({
   message: {
     padding: 10,
     marginVertical: 5,
+    backgroundColor: '#f0f0f0',
     borderRadius: 5,
+  },
+  sender: {
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -104,6 +134,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     paddingHorizontal: 10,
+    marginRight: 10,
   },
   timestamp: {
     fontSize: 10,

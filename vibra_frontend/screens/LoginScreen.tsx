@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { useRouter } from 'expo-router';
 import axios, { AxiosError } from 'axios';
 import config from '../config.json';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/types'; // Adjust as needed
 
 interface LoginResponse {
   message: string;
@@ -17,17 +19,18 @@ const predefinedUsers = [
   { id: 4, name: 'Laura' },
   { id: 5, name: 'Hugo' },
 ];
+console.log('inside login')
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
-  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<string | null>(null); // Define currentUser state
+  const [loading, setLoading] = useState(false);                       // Define loading state
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);     // Define csrfToken state
+  const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const handleLogin = async (userName: string) => {
     setLoading(true);
     try {
-      // Make the login request with the CSRF token in the headers
       const response = await axios.post<LoginResponse>(
         `http://${config.MY_IP}:8000/login/`,
         { username: userName },
@@ -42,20 +45,20 @@ export default function LoginScreen() {
 
       if (response.status === 200) {
         const { message } = response.data;
-        setCurrentUser(userName);
+        setCurrentUser(userName);  // Set the current user
         Alert.alert('Success', `Logged in as ${userName}: ${message}`);
-        router.push('/(tabs)');
+        navigation.navigate('Main');
       }
     } catch (error) {
-      const err = error as AxiosError;
+      const err = error as AxiosError<LoginResponse>;
       if (err.response) {
         const status = err.response.status;
+        const data = err.response.data as LoginResponse;
         if (status === 401) {
           Alert.alert('Unauthorized', 'Invalid credentials, please try again.');
         } else if (status === 500) {
           Alert.alert('Server Error', 'There was a problem on the server. Please try again later.');
         } else {
-          const data = err.response.data as any;
           Alert.alert('Error', data?.message || 'Unable to log in');
         }
       } else if (err.request) {
@@ -77,7 +80,7 @@ export default function LoginScreen() {
         predefinedUsers.map((user) => (
           <Button
             key={user.id}
-            title={loading ? 'Logging in...' : `Login as ${user.name}`}
+            title={`Login as ${user.name}`}
             onPress={() => handleLogin(user.name)}
             disabled={loading}
           />

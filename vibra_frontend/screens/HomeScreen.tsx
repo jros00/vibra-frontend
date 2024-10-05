@@ -4,7 +4,7 @@ import { Text, View } from '@/components/Themed';
 import { HelloWave } from '@/components/HelloWave';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import config from '../../config.json';
+import config from '../config.json';
 
 export default function HomeScreen() {
   const [message, setMessage] = useState('');

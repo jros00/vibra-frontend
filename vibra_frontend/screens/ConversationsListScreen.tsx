@@ -12,6 +12,7 @@ interface Participant {
 
 interface Chat {
   id: number;
+  group_name: string;  // Add the group_name field here
   participants: Participant[];
   last_message: string;
   last_message_timestamp: string;
@@ -19,8 +20,8 @@ interface Chat {
 
 // Define the param list for the navigation stack
 type RootStackParamList = {
-  ChatList: undefined;   // No params for ChatList
-  Chat: { chatId: number };  // chatId param for Chat screen
+  ChatList: undefined;
+  Chat: { chatId: number };
 };
 
 // Define the type for the navigation prop in ChatList
@@ -30,7 +31,7 @@ const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const navigation = useNavigation<ChatListNavigationProp>();  // Typed navigation
+  const navigation = useNavigation<ChatListNavigationProp>();
 
   const getChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
@@ -65,7 +66,8 @@ const ChatList = () => {
           <View style={styles.chatItem}>
             <Image source={{ uri: 'https://example.com/default-profile.png' }} style={styles.profilePicture} />
             <View>
-              <Text style={styles.name}>Chat with {item.participants.map(p => p.username).join(', ')}</Text>
+              <Text style={styles.name}>{item.group_name}</Text>
+              <Text style={styles.members}>Chat with {item.participants.map(p => p.username).join(', ')}</Text>
               <Text style={styles.lastMessage}>{item.last_message}</Text>
             </View>
             <Text style={styles.timestamp}>{new Date(item.last_message_timestamp).toLocaleTimeString()}</Text>
@@ -93,6 +95,9 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  members: {
+    fontSize: 12,
   },
   lastMessage: {
     color: '#666',

@@ -21,11 +21,9 @@
     },
     "homepage": "https://github.com/jros00/vibra-frontend#readme",
     "dependencies": {
-<<<<<<< HEAD
         "expo": "~51.0.35",
-        "expo-splash-screen": "^0.27.6"
-=======
-        "install-dependencies": "^0.0.0-empty"
->>>>>>> c7bae5d (Code for login, messages and notifications)
+        "expo-splash-screen": "^0.27.6",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     }
 }
