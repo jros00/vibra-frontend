@@ -1,8 +1,9 @@
-import { FlatList, StyleSheet, Dimensions } from 'react-native';
+import { FlatList, StyleSheet, Dimensions, View as RNView } from 'react-native';
 import { ViewToken } from 'react-native'; // Import types from React Native
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
 import { Text, View } from '@/components/Themed';
+import PreferenceButton from '@/components/PreferenceButton';
 import { SetStateAction, useEffect, useRef, useState } from 'react';
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid  } from 'expo-av'; // Import Expo AV for audio playback
 import axios from 'axios';
@@ -239,22 +240,21 @@ export default function ForYouScreen() {
 
 
   return (
-    <View>
+    <RNView style={{ flex: 1 }}>
       {/* FlatList for vertical swiping between songs */}
       <FlatList
         data={songFeed}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View onLayout={onCardLayout}>
+          <RNView onLayout={onCardLayout}>
             <SongCard
               image={{ uri: item.album_image }}
               title={item.track_title}
               description={item.artist_name}
             />
-          </View>
+          </RNView>
         )}
-        // Conditionally set props based on the platform
-        pagingEnabled={Platform.OS !== 'web'} // Enable paging only on mobile
+        pagingEnabled={Platform.OS !== 'web'}
         showsVerticalScrollIndicator={false}
         snapToAlignment={Platform.OS !== 'web' ? 'start' : undefined}
         snapToInterval={Platform.OS !== 'web' ? cardHeight : undefined}
@@ -262,8 +262,19 @@ export default function ForYouScreen() {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         bounces={false}
-        overScrollMode="never" // This prop can be left as is; it doesn't affect web
+        overScrollMode="never"
       />
+
+      {/* Buttons for like and dislike */}
+      <RNView style={styles.buttonContainer}>
+        {currentSong && (
+          <>
+            <PreferenceButton preference="like" track_id={currentSong.track_id} />
+            <PreferenceButton preference="dislike" track_id={currentSong.track_id} />
+          </>
+        )}
+      </RNView>
+
       {/* Render the NowPlayingBar only if there's a current song */}
       {currentSong && (
         <NowPlayingBar
@@ -271,12 +282,17 @@ export default function ForYouScreen() {
           artist={currentSong.artist_name}
         />
       )}
-    </View>
+    </RNView>
   );
 }
 
-
 const styles = StyleSheet.create({
+  buttonContainer: {
+    position: 'absolute',
+    right: 20,
+    top: '45%',
+    alignItems: 'center',
+  },
   currentSongContainer: {
     position: 'absolute',
     bottom: 30,
