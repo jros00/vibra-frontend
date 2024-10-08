@@ -1,28 +1,29 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { createWebSocket } from '@/utils/websocket';
 
 export function useWebSocket(endpoint: string, onMessageCallback: (data: any) => void, token?: string) {
-  const wsRef = useRef<ReturnType<typeof createWebSocket> | null>(null);  // Store the WebSocket instance
+  const wsRef = useRef<ReturnType<typeof createWebSocket> | null>(null);
+
+  // Memoize the callback to ensure stability
+  const stableOnMessageCallback = useCallback(onMessageCallback, [onMessageCallback]);
 
   useEffect(() => {
+    // If there's already an active WebSocket, close it before opening a new one
     if (wsRef.current) {
       console.log('Closing existing WebSocket connection before opening a new one.');
-      wsRef.current.close();  // Close the existing WebSocket connection
+      wsRef.current.close();
     }
 
-    // Create a new WebSocket connection with the token if provided
-    wsRef.current = createWebSocket(endpoint, (event) => {
-      const data = JSON.parse(event.data);
-      onMessageCallback(data);
-    }, token);
+    // Open a new WebSocket connection
+    wsRef.current = createWebSocket(endpoint, stableOnMessageCallback, token);
 
-    // Cleanup function to close the WebSocket when the component unmounts
+    // Cleanup WebSocket connection on unmount or dependency change
     return () => {
       if (wsRef.current) {
         console.log(`Closing WebSocket connection to ${endpoint}`);
         wsRef.current.close();
-        wsRef.current = null;  // Set to null to avoid reusing old connections
+        wsRef.current = null;
       }
     };
-  }, [endpoint, onMessageCallback, token]);  // Rerun if the endpoint, callback, or token changes
+  }, [endpoint, stableOnMessageCallback, token]);
 }

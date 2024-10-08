@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet } from 'react-native';
-import { fetchMessages, sendMessage } from '../utils/MessageApi';  // Import the message API
-import { useWebSocket } from '@/hooks/useWebSocket';  // Import the WebSocket hook
+import { fetchMessages, sendMessage } from '../utils/MessageApi';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -32,16 +32,19 @@ interface Message {
 }
 
 const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
-  const { chatId } = route.params;  // Get the chat ID from route parameters
-  const [messages, setMessages] = useState<Message[]>([]);  // Type messages as an array of Message
+  const { chatId } = route.params;
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const flatListRef = useRef<FlatList>(null); // For auto-scrolling
 
-  // Fetch messages when the component mounts
+  // Fetch initial messages when the component mounts
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const fetchedMessages = await fetchMessages(chatId);  // Use the API utility to fetch messages
+        console.log('Fetching messages for chat ID:', chatId);
+        const fetchedMessages = await fetchMessages(chatId);
+        console.log('Fetched Messages:', fetchedMessages);
         setMessages(fetchedMessages);
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -49,32 +52,51 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
         setLoading(false);
       }
     };
-
     getMessages();
   }, [chatId]);
 
   // WebSocket connection to listen for new messages
-  useWebSocket(`conversations/${chatId}`, (newData: Message) => {
-    // Handle incoming WebSocket messages by appending them to the messages list
-    setMessages((prevMessages) => [...prevMessages, newData]);
-  });
+  useWebSocket(
+    `conversations/${chatId}`,
+    useCallback((newData: any) => {
+      console.log('New WebSocket message received:', newData);
+  
+      // Check if the data has a "message" key
+      if (newData.message) {
+        const newMessage = newData.message;
+  
+        setMessages((prevMessages) => {
+          // Append the new message only if it doesn't already exist
+          if (!prevMessages.find((msg) => msg.id === newMessage.id)) {
+            const updatedMessages = [...prevMessages, newMessage];
+            console.log('Updating messages with new data:', updatedMessages);
+            return updatedMessages;
+          }
+          return prevMessages;
+        });
+  
+        // Ensure that the flat list scrolls to the end when new data is received
+        flatListRef.current?.scrollToEnd({ animated: true });
+      } else {
+        console.error('Unexpected WebSocket message format:', newData);
+      }
+    }, []),
+  );
 
-  // Handle sending a new message
-  const handleSend = async () => {
+
+  // Handle sending a new message using the POST request
+  const handleSend = useCallback(async () => {
     if (newMessage.trim()) {
       try {
-        const sentMessage = await sendMessage(chatId, newMessage);  // Use the API utility to send message
-        
-        // Append the new message only if it doesn't already exist
-        if (!messages.find((msg) => msg.id === sentMessage.id)) {
-          setMessages([...messages, sentMessage]);
-        }
-        setNewMessage('');  // Clear input field
+        const sentMessage = await sendMessage(chatId, newMessage);
+        // setMessages((prevMessages) => [...prevMessages, sentMessage]);
+        setNewMessage('');
+        flatListRef.current?.scrollToEnd({ animated: true }); // Auto-scroll after sending
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
-  };
+  }, [chatId, newMessage]);
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -83,16 +105,24 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.message}>
-            {/* Display sender's username and the message */}
-            <Text style={styles.sender}>{item.sender.username}:</Text>
-            <Text>{item.content}</Text>
-            <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
-          </View>
-        )}
+        ref={flatListRef}  // Reference to auto-scroll
+        data={messages}  // Use messages state directly
+        keyExtractor={(item) => item.id.toString()}  // Ensure item.id is unique
+        renderItem={({ item }) => {
+          console.log('Rendering item:', item);  // Log the item in FlatList
+          return (
+            <View style={styles.message}>
+              <Text style={styles.sender}>
+                {item?.sender || 'Unknown sender'}:
+              </Text>
+              <Text>{item?.content || 'No content available'}</Text>
+              <Text style={styles.timestamp}>
+                {item?.timestamp ? new Date(item.timestamp).toLocaleTimeString() : 'Invalid time'}
+              </Text>
+            </View>
+          );
+        }}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} // Scroll on new content
       />
       <View style={styles.inputContainer}>
         <TextInput
