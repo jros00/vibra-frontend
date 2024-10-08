@@ -1,26 +1,29 @@
-import { StyleSheet, ActivityIndicator } from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
+import { StyleSheet } from 'react-native';
+
 import { Text, View } from '@/components/Themed';
 import { HelloWave } from '@/components/HelloWave';
+
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import config from '../config.json';
 
-export default function HomeScreen() {
+import config from '../../config.json'
+import Colors from '@/constants/Colors';
+
+export default function TabOneScreen() {
+
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = `http://${config.MY_IP}:8000/home/welcome/`;
-    console.log(apiUrl);
-    
+    const apiUrl = `http://localhost:8000/home/welcome/`;
+    console.log(URL);
     axios
       .get(apiUrl)
       .then((response) => {
         setMessage(response.data.message);
       })
       .catch((error) => {
-        console.error('Error fetching message:', error);
+        console.error(error);
         setMessage('Error fetching message');
       })
       .finally(() => {
@@ -28,22 +31,11 @@ export default function HomeScreen() {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {message}
-        <HelloWave />
-      </Text>
+      <Text style={styles.title}>{message}<HelloWave/></Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      <Text style={styles.sampleText}>This is a test to see if backend communication works. If it says "Welcome to Vibra!" above this message, this means connection with backend is working.</Text>
     </View>
   );
 }
@@ -62,5 +54,10 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  sampleText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: Colors.textColorLight,
   },
 });
