@@ -29,8 +29,8 @@ const PreferenceButton: React.FC<PreferenceButtonProps> = ({ preference, track_i
     <TouchableOpacity style={styles.button} onPress={handlePress}>
       <Icon
         name={preference === 'like' ? 'thumbs-up' : 'thumbs-down'}
-        size={30}
-        color={preference === 'like' ? 'green' : 'red'}
+        size={30} // Set uniform size
+        color="white" // Set to white color
       />
     </TouchableOpacity>
   );

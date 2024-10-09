@@ -1,14 +1,15 @@
+import React, { SetStateAction, useEffect, useRef, useState, useCallback } from 'react';
 import { FlatList, StyleSheet, Dimensions, View as RNView, TouchableOpacity } from 'react-native';
 import { ViewToken } from 'react-native';
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
 import PreferenceButton from '@/components/PreferenceButton';
 import ShareButton from '@/components/ShareButton';
-import { SetStateAction, useEffect, useRef, useState, useCallback } from 'react';
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
-import { Platform } from 'react-native';
+import { Platform, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import config from '../config.json';
 
 const { height } = Dimensions.get('window');
@@ -158,56 +159,72 @@ export default function ForYouScreen() {
   );
 
   return (
-    <RNView style={{ flex: 1 }}>
-      <FlatList
-        data={songFeed}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={togglePlayPause} onLayout={onCardLayout}>
-            <SongCard
-              image={{ uri: item.album_image }}
-              title={item.track_title}
-              description={item.artist_name}
-            />
-          </TouchableOpacity>
-        )}
-        pagingEnabled={Platform.OS !== 'web'}
-        showsVerticalScrollIndicator={false}
-        snapToAlignment={Platform.OS !== 'web' ? 'start' : undefined}
-        snapToInterval={Platform.OS !== 'web' ? cardHeight : undefined}
-        decelerationRate={Platform.OS !== 'web' ? 'fast' : undefined}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        bounces={false}
-        overScrollMode="never"
-      />
-
-      <RNView style={styles.buttonContainer}>
-        {currentSong && (
-          <>
-            <PreferenceButton preference="like" track_id={currentSong.track_id} />
-            <PreferenceButton preference="dislike" track_id={currentSong.track_id} />
-            <ShareButton track_id={currentSong.track_id} conversations={conversations} />
-          </>
-        )}
-      </RNView>
-
-      {currentSong && (
-        <NowPlayingBar
-          title={currentSong.track_title}
-          artist={currentSong.artist_name}
+    <LinearGradient
+      colors={['#4c669f', '#3b5998', '#192f6a']} // Define gradient colors
+      style={styles.gradientBackground}
+    >
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          contentContainerStyle={styles.flatListContainer}
+          data={songFeed}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={togglePlayPause} onLayout={onCardLayout}>
+              <SongCard
+                image={{ uri: item.album_image }}
+                title={item.track_title}
+                description={item.artist_name}
+              />
+            </TouchableOpacity>
+          )}
+          pagingEnabled={Platform.OS !== 'web'}
+          showsVerticalScrollIndicator={false}
+          snapToAlignment={Platform.OS !== 'web' ? 'start' : undefined}
+          snapToInterval={Platform.OS !== 'web' ? cardHeight : undefined}
+          decelerationRate={Platform.OS !== 'web' ? 'fast' : undefined}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          bounces={false}
+          overScrollMode="never"
         />
-      )}
-    </RNView>
+
+        <RNView style={styles.buttonContainer}>
+          {currentSong && (
+            <>
+              <PreferenceButton preference="like" track_id={currentSong.track_id} />
+              <PreferenceButton preference="dislike" track_id={currentSong.track_id} />
+              <ShareButton track_id={currentSong.track_id} conversations={conversations} />
+            </>
+          )}
+        </RNView>
+
+        {currentSong && (
+          <NowPlayingBar
+            title={currentSong.track_title}
+            artist={currentSong.artist_name}
+          />
+        )}
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
-
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent', // Ensure the SafeAreaView background is transparent
+  },
+  flatListContainer: {
+    paddingTop: 20,
+    paddingBottom: 50,
+  },
   buttonContainer: {
     position: 'absolute',
     right: 20,
-    top: '40%',
+    top: '55%',
     alignItems: 'center',
   },
   currentSongContainer: {
@@ -222,19 +239,5 @@ const styles = StyleSheet.create({
   currentSongText: {
     color: '#fff',
     fontSize: 18,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
   },
 });
