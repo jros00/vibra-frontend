@@ -27,16 +27,10 @@ export default function ForYouScreen() {
   const [songFeed, setSongFeed] = useState<Array<Song>>([]);
   const [recommendations, setRecommendations] = useState<Array<Song>>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [conversations, setConversations] = useState<Array<{ id: number; name: string }>>([]);
   const [cardHeight, setCardHeight] = useState<number>(0);
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
   const soundRef = useRef<Audio.Sound | null>(null);
-
-  // Mock data for conversations (replace with real data when available)
-  const conversations = [
-    { id: 1, name: 'Conversation 1' },
-    { id: 2, name: 'Conversation 2' },
-    { id: 3, name: 'Conversation 3' },
-  ];
 
   const enableAudio = async () => {
     try {
@@ -52,6 +46,26 @@ export default function ForYouScreen() {
       console.log('Audio mode configured successfully');
     } catch (error) {
       console.error('Failed to set audio mode:', error);
+    }
+  };
+
+  const fetchChats = async () => {
+    const apiUrl = 'http://localhost:8000/chat_list/chats';
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const chats = response.data.map((chat: { id: number; group_name: string }) => ({
+        id: chat.id,
+        name: chat.group_name,
+      }));
+      console.log('Fetched chats:', chats);
+      return chats;
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+      return [];
     }
   };
 
@@ -78,6 +92,12 @@ export default function ForYouScreen() {
   useEffect(() => {
     enableAudio();
     loadInitialRecommendations();
+
+    const getChats = async () => {
+      const chats = await fetchChats();
+      setConversations(chats);
+    };
+    getChats();
   }, []);
 
   useEffect(() => {

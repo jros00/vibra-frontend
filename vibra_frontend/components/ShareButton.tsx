@@ -1,7 +1,6 @@
-// ShareButton.tsx
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, Modal, View, FlatList, Button, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Add an icon for sharing if desired
+import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import config from '../config.json';
 
@@ -12,16 +11,17 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedConversations, setSelectedConversations] = useState<Array<number>>([]);
+  const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
 
   const handleShare = async () => {
+    if (selectedConversation === null) return; // Ensure a conversation is selected
     const apiUrl = `http://${config.MY_IP}:8000/action/share/`;
     try {
       await axios.post(
         apiUrl,
         {
           track_id,
-          group_ids: selectedConversations,
+          group_ids: [selectedConversation], // Use array to match backend structure
           message: "This track is great!",
         },
         {
@@ -30,34 +30,29 @@ const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) =>
           },
         }
       );
-      console.log('Track shared successfully');
+      console.log(`Track shared with conversation ID ${selectedConversation}`);
       setModalVisible(false); // Close modal after sharing
     } catch (error) {
       console.error('Error sharing track:', error);
     }
   };
 
-  const toggleConversation = (id: number) => {
-    setSelectedConversations((prev) =>
-      prev.includes(id) ? prev.filter((convId) => convId !== id) : [...prev, id]
-    );
-  };
+  const toggleModal = () => setModalVisible(!modalVisible);
 
   return (
     <>
-      <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.button} onPress={toggleModal}>
         <Icon name="share" size={30} color="blue" />
       </TouchableOpacity>
 
-      {/* Modal for selecting conversations */}
       <Modal
         visible={modalVisible}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={toggleModal}
       >
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Select Conversations to Share</Text>
+          <Text style={styles.modalTitle}>Select a Conversation</Text>
           <FlatList
             data={conversations}
             keyExtractor={(item) => item.id.toString()}
@@ -65,15 +60,16 @@ const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) =>
               <TouchableOpacity
                 style={[
                   styles.conversationItem,
-                  selectedConversations.includes(item.id) && styles.selectedConversation,
+                  selectedConversation === item.id && styles.selectedConversation,
                 ]}
-                onPress={() => toggleConversation(item.id)}
+                onPress={() => setSelectedConversation(item.id)}
               >
                 <Text style={styles.conversationText}>{item.name}</Text>
               </TouchableOpacity>
             )}
           />
-          <Button title="Share Track" onPress={handleShare} disabled={selectedConversations.length === 0} />
+          <Button title="Share Track" onPress={handleShare} disabled={selectedConversation === null} />
+          <Button title="Cancel" onPress={toggleModal} />
         </View>
       </Modal>
     </>
@@ -91,6 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
   },
   modalTitle: {
     fontSize: 18,
