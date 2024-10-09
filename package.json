@@ -1,29 +1,31 @@
 {
-    "name": "vibra-frontend",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "install-dependencies": "npm install && cd vibra_frontend && npm install",
-        "start": "cd vibra_frontend && npx expo start",
-        "start-lan": "cd vibra_frontend && npx expo start --lan",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/jros00/vibra-frontend.git"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/jros00/vibra-frontend/issues"
-    },
-    "homepage": "https://github.com/jros00/vibra-frontend#readme",
-    "dependencies": {
-        "expo": "~51.0.35",
-        "expo-splash-screen": "^0.27.6",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0"
-    }
+  "name": "vibra-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install-dependencies": "npm install && cd vibra_frontend && npm install",
+    "start": "cd vibra_frontend && npx expo start",
+    "start-lan": "cd vibra_frontend && npx expo start --lan",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jros00/vibra-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jros00/vibra-frontend/issues"
+  },
+  "homepage": "https://github.com/jros00/vibra-frontend#readme",
+  "dependencies": {
+    "expo": "~51.0.35",
+    "expo-splash-screen": "^0.27.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-native-vector-icons": "^10.2.0",
+    "expo-font": "~12.0.10"
+  }
 }
