@@ -56,7 +56,7 @@ export default function ForYouScreen() {
     try {
       const response = await axios.get(apiUrl);
       console.log('Fetched chat data:', response.data); // Log the data
-      return response.data.map((chat) => ({
+      return response.data.map((chat: any) => ({
         id: chat.id,
         name: chat.group_name,
       }));
