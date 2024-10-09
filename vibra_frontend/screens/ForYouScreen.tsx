@@ -50,21 +50,17 @@ export default function ForYouScreen() {
   };
 
   const fetchChats = async () => {
-    const apiUrl = 'http://localhost:8000/chat_list/chats';
+    const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
+    console.log('Fetching chats from:', apiUrl); // Log the URL to confirm it's correct
     try {
-      const response = await axios.get(apiUrl, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const chats = response.data.map((chat: { id: number; group_name: string }) => ({
+      const response = await axios.get(apiUrl);
+      console.log('Fetched chat data:', response.data); // Log the data
+      return response.data.map((chat) => ({
         id: chat.id,
         name: chat.group_name,
       }));
-      console.log('Fetched chats:', chats);
-      return chats;
     } catch (error) {
-      console.error('Error fetching chats:', error);
+      console.error('Error fetching chats:', error); // Log detailed error
       return [];
     }
   };
