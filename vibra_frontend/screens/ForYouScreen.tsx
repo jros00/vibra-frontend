@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Dimensions, View as RNView } from 'react-native';
+import { FlatList, StyleSheet, Dimensions, View as RNView, TouchableOpacity } from 'react-native';
 import { ViewToken } from 'react-native';
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
@@ -26,6 +26,7 @@ interface Song {
 export default function ForYouScreen() {
   const [songFeed, setSongFeed] = useState<Array<Song>>([]);
   const [recommendations, setRecommendations] = useState<Array<Song>>([]);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true); // Track if song is playing
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [conversations, setConversations] = useState<Array<{ id: number; name: string }>>([]);
   const [cardHeight, setCardHeight] = useState<number>(0);
@@ -51,7 +52,7 @@ export default function ForYouScreen() {
 
   const fetchChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
-    console.log('Fetching chats from:', apiUrl); // Log the URL to confirm it's correct
+    console.log('Fetching chats from:', apiUrl);
     try {
       const response = await axios.get(apiUrl);
       console.log('Fetched chat data:', response.data); // Log the data
@@ -112,8 +113,20 @@ export default function ForYouScreen() {
     try {
       const { sound } = await Audio.Sound.createAsync({ uri: audio_url }, { shouldPlay: true });
       soundRef.current = sound;
+      setIsPlaying(true);
     } catch (error) {
       console.error('Error playing sound:', error);
+    }
+  };
+
+  const togglePlayPause = async () => {
+    if (soundRef.current) {
+      if (isPlaying) {
+        await soundRef.current.pauseAsync();
+      } else {
+        await soundRef.current.playAsync();
+      }
+      setIsPlaying(!isPlaying); // Toggle play/pause state
     }
   };
 
@@ -150,13 +163,13 @@ export default function ForYouScreen() {
         data={songFeed}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <RNView onLayout={onCardLayout}>
+          <TouchableOpacity onPress={togglePlayPause} onLayout={onCardLayout}>
             <SongCard
               image={{ uri: item.album_image }}
               title={item.track_title}
               description={item.artist_name}
             />
-          </RNView>
+          </TouchableOpacity>
         )}
         pagingEnabled={Platform.OS !== 'web'}
         showsVerticalScrollIndicator={false}
@@ -188,6 +201,7 @@ export default function ForYouScreen() {
     </RNView>
   );
 }
+
 
 const styles = StyleSheet.create({
   buttonContainer: {
