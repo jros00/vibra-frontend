@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { createWebSocket } from '@/utils/websocket';
+import { createWebSocket } from '@/services/websocket';
 
 export function useWebSocket(endpoint: string, onMessageCallback: (data: any) => void, token?: string) {
   const wsRef = useRef<ReturnType<typeof createWebSocket> | null>(null);

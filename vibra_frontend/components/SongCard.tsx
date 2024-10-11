@@ -1,14 +1,7 @@
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { Image, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-
-interface SongCardProps {
-  image: any; // Accepts the image source (can be a local image using require or a URI string)
-  palette?: Array<Array<number>>; // Optional array of arrays for colors
-  dominantColor?: Array<number>; // Optional dominant color array
-  title: string;
-  description: string;
-}
+import { SongCardProps } from '@/types/SongCardProps';
 
 // Utility function to convert RGB array to hex color string
 const rgbToHex = (rgb: number[] = []): string => {

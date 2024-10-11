@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet } from 'react-native';
-import { fetchMessages, sendMessage } from '../utils/MessageApi';
+import { fetchMessages, sendMessage } from '../services/MessageApi';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { Message } from '@/types/Message';
+import MessageList from '@/components/MessageList';
+import MessageInput from '@/components/MessageInput';
 
 // Define the param list for the stack navigator
 type RootStackParamList = {
@@ -18,17 +21,6 @@ type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 interface ChatProps {
   navigation: ChatScreenNavigationProp;
   route: ChatScreenRouteProp;
-}
-
-// Define the Message type
-interface Message {
-  id: number;
-  content: string;
-  timestamp: string;
-  sender: {
-    username: string;
-    profile_picture: string;
-  };
 }
 
 const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
@@ -104,35 +96,12 @@ const Chat: React.FC<ChatProps> = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}  // Reference to auto-scroll
-        data={messages}  // Use messages state directly
-        keyExtractor={(item) => item.id.toString()}  // Ensure item.id is unique
-        renderItem={({ item }) => {
-          console.log('Rendering item:', item);  // Log the item in FlatList
-          return (
-            <View style={styles.message}>
-              <Text style={styles.sender}>
-                {item?.sender || 'Unknown sender'}:
-              </Text>
-              <Text>{item?.content || 'No content available'}</Text>
-              <Text style={styles.timestamp}>
-                {item?.timestamp ? new Date(item.timestamp).toLocaleTimeString() : 'Invalid time'}
-              </Text>
-            </View>
-          );
-        }}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} // Scroll on new content
+      <MessageList messages={messages} flatListRef={flatListRef} />
+      <MessageInput
+      newMessage={newMessage}
+      setNewMessage={setNewMessage}
+      handleSend={handleSend}
       />
-      <View style={styles.inputContainer}>
-        <TextInput
-          value={newMessage}
-          onChangeText={setNewMessage}
-          style={styles.input}
-          placeholder="Type a message..."
-        />
-        <Button title="Send" onPress={handleSend} />
-      </View>
     </View>
   );
 };
