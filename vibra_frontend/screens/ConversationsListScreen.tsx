@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import config from '../config.json';
+import { Chat } from '@/types/Chat';
+import ChatItem from '@/components/ConversationItem';
 
-interface Participant {
-  username: string;
-  profile_picture: string;
-}
-
-interface Chat {
-  id: number;
-  group_name: string;  // Add the group_name field here
-  participants: Participant[];
-  last_message: string;
-  last_message_timestamp: string;
-}
 
 // Define the param list for the navigation stack
 type RootStackParamList = {
@@ -25,13 +15,13 @@ type RootStackParamList = {
 };
 
 // Define the type for the navigation prop in ChatList
-type ChatListNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
+type ConversationsListNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
 
 const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const navigation = useNavigation<ChatListNavigationProp>();
+  const navigation = useNavigation<ConversationsListNavigationProp>();
 
   const getChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
@@ -61,19 +51,7 @@ const ChatList = () => {
     <FlatList
       data={chats}
       keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => navigation.navigate('Chat', { chatId: item.id })}>
-          <View style={styles.chatItem}>
-            <Image source={{ uri: 'https://example.com/default-profile.png' }} style={styles.profilePicture} />
-            <View>
-              <Text style={styles.name}>{item.group_name}</Text>
-              <Text style={styles.members}>Chat with {item.participants.map(p => p.username).join(', ')}</Text>
-              <Text style={styles.lastMessage}>{item.last_message}</Text>
-            </View>
-            <Text style={styles.timestamp}>{new Date(item.last_message_timestamp).toLocaleTimeString()}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
+      renderItem={({ item }) => <ChatItem chat={item} />}
     />
   );
 };
