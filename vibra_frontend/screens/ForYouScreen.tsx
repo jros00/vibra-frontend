@@ -8,12 +8,16 @@ import { Platform } from 'react-native';
 import { enableAudio } from '@/services/AudioService';
 import { styles } from './styles';
 import { useSongFeed } from '@/hooks/useSongFeed';
+import { useTrackTime } from '@/hooks/useTrackTime';
 
 const { height } = Dimensions.get('window');
 
 export default function ForYouScreen() {
   const { songFeed, currentSong, isPlaying, handleTogglePlayPause, onViewableItemsChanged, cardHeight, onCardLayout, conversations } = useSongFeed();
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  
+  useTrackTime(isPlaying, currentSong);
+  
 
   useEffect(() => {
     enableAudio();
