@@ -160,7 +160,7 @@ export default function ForYouScreen() {
 
   return (
     <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']} // Define gradient colors
+      colors={['#4c669f', '#3b5998', '#192f6a']}
       style={styles.gradientBackground}
     >
       <SafeAreaView style={styles.container}>
@@ -174,6 +174,10 @@ export default function ForYouScreen() {
                 image={{ uri: item.album_image }}
                 title={item.track_title}
                 description={item.artist_name}
+                track_id={item.track_id}
+                conversations={conversations}
+                isPlaying={isPlaying}
+                onTogglePlayPause={togglePlayPause}
               />
             </TouchableOpacity>
           )}
@@ -187,17 +191,7 @@ export default function ForYouScreen() {
           bounces={false}
           overScrollMode="never"
         />
-
-        <RNView style={styles.buttonContainer}>
-          {currentSong && (
-            <>
-              <PreferenceButton preference="like" track_id={currentSong.track_id} />
-              <PreferenceButton preference="dislike" track_id={currentSong.track_id} />
-              <ShareButton track_id={currentSong.track_id} conversations={conversations} />
-            </>
-          )}
-        </RNView>
-
+  
         {currentSong && (
           <NowPlayingBar
             title={currentSong.track_title}
@@ -207,37 +201,35 @@ export default function ForYouScreen() {
       </SafeAreaView>
     </LinearGradient>
   );
-}
+  
+  }
 
-const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent', // Ensure the SafeAreaView background is transparent
-  },
-  flatListContainer: {
-    paddingTop: 20,
-    paddingBottom: 50,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    right: 20,
-    top: '55%',
-    alignItems: 'center',
-  },
-  currentSongContainer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-  },
-  currentSongText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-});
+  const styles = StyleSheet.create({
+    gradientBackground: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: 'transparent',
+    },
+    flatListContainer: {
+      paddingTop: 0,
+      paddingBottom: 50,
+    },
+    buttonGradient: {
+      position: 'absolute',
+      top: '40.5%', // Adjust to match the button container's location
+      right: 0,
+      width: 60, // Width of the gradient background
+      height: 200, // Height of the gradient background
+      justifyContent: 'center',
+      borderRadius: 25,
+      overflow: 'hidden',
+      marginRight: 20,
+      
+    },
+    buttonContainer: {
+      alignItems: 'center',
+    },
+  });
+  

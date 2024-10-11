@@ -1,74 +1,121 @@
-import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import React, { useRef } from 'react';
+import { Image, StyleSheet, TouchableOpacity, Dimensions, Animated, View as RNView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import PreferenceButton from '@/components/PreferenceButton';
+import ShareButton from '@/components/ShareButton';
 
 interface SongCardProps {
-  image: any; // Accepts the image source (can be a local image using require or a URI string)
-  palette?: Array<Array<number>>; // Optional array of arrays for colors
-  dominantColor?: Array<number>; // Optional dominant color array
+  image: any;
   title: string;
   description: string;
+  track_id: number;
+  conversations: Array<{ id: number; name: string }>;
+  isPlaying: boolean;
+  onTogglePlayPause: () => void;
 }
-
-// Utility function to convert RGB array to hex color string
-const rgbToHex = (rgb: number[] = []): string => {
-  return (
-    '#' +
-    rgb
-      .map((value) => {
-        const hex = value.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-      })
-      .join('')
-  );
-};
-
-const SongCard: React.FC<SongCardProps> = ({ image, palette = [], dominantColor = [0, 0, 0] }) => {
-  // Convert the RGB arrays to hex strings
-  const dominantColorHex = rgbToHex(dominantColor);
-  const paletteHex = palette.map((rgbArray) => rgbToHex(rgbArray));
-
-  // Ensure we have at least two colors for the gradient
-  const gradientColors = [dominantColorHex, ...paletteHex];
-
-  // If fewer than two colors, add a fallback color
-  if (gradientColors.length < 2) {
-    gradientColors.push('#ffffff'); // Adding white as a fallback
-  }
-
-  return (
-    <LinearGradient colors={gradientColors} style={styles.cardContainer}>
-      {/* Image Container */}
-      <Image source={image} style={styles.image} resizeMode="cover" />
-    </LinearGradient>
-  );
-};
 
 const { width, height } = Dimensions.get('window');
 
+const SongCard: React.FC<SongCardProps> = ({
+  image,
+  title,
+  description,
+  track_id,
+  conversations,
+  isPlaying,
+  onTogglePlayPause,
+}) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const handlePlayPause = () => {
+    onTogglePlayPause();
+
+    fadeAnim.setValue(1);
+    Animated.sequence([
+      Animated.delay(500),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  return (
+    <TouchableOpacity onPress={handlePlayPause} style={styles.cardContainer}>
+      <LinearGradient colors={['#000', '#333']} style={styles.gradientBackground}>
+        <Image source={image} style={styles.image} resizeMode="cover" />
+
+        {/* Play/Pause Button Overlay with Animated Visibility */}
+        <Animated.View style={[styles.playPauseButton, { opacity: fadeAnim }]}>
+          <Icon
+            name={isPlaying ? 'pause-circle' : 'play-circle'}
+            size={80}
+            color="rgba(255, 255, 255, 0.8)"
+          />
+        </Animated.View>
+
+        {/* Buttons and Gradient Background on the Right Side */}
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0.8)', 'transparent']}
+          start={{ x: 1, y: 1 }}
+          end={{ x: 0.5, y: 0 }}
+          style={styles.buttonGradient}
+        >
+          <RNView style={styles.buttonContainer}>
+            <PreferenceButton preference="like" track_id={track_id} />
+            <PreferenceButton preference="dislike" track_id={track_id} />
+            <ShareButton track_id={track_id} conversations={conversations} />
+          </RNView>
+        </LinearGradient>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   cardContainer: {
-    // Card container covers whole screen
     width: width,
     height: height,
+    alignSelf: 'center',
+  },
+  gradientBackground: {
+    flex: 1,
     padding: 20,
-    opacity: 0.5,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
-    alignSelf: 'center',
   },
   image: {
+    marginTop: 30,
     opacity: 1,
     width: '100%',
     height: '60%',
     alignSelf: 'center',
+    borderRadius: 20,
+    overflow: 'hidden',
   },
-  gradient: {
-    flex: 1,
-    padding: 20,
+  playPauseButton: {
+    position: 'absolute',
+    top: '45%',
+    left: '45%',
+  },
+  buttonGradient: {
+    position: 'absolute',
+    right: 20,
+    top: '41%',
+    width: 70,
+    height: 200,
     justifyContent: 'center',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 
