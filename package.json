@@ -54,7 +54,10 @@
   "peerDependencies": {
     "react-native": ">=0.60"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-native-events": "^1.0.21",
+    "react-native-spotify-remote": "^0.3.10"
+  },
   "devDependencies": {
     "@release-it/keep-a-changelog": "^2.2.2",
     "@types/react-native": "^0.60.0",

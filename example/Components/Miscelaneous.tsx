@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from "react";
-import { ContentItem } from "react-native-spotify-remote";
+import { ContentItem } from "../../src/index";
 import { Alert, ScrollView } from "react-native";
 import { View, Button, Text } from "native-base";
 import EnvVars from "./EnvVars";

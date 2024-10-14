@@ -39,7 +39,7 @@
 		A0C233712036800A0063A745 /* RNSpotifyRemotePromise.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSpotifyRemotePromise.m; sourceTree = "<group>"; };
 		D64EA980218375B0001B053B /* RNSpotifyRemoteAuth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSpotifyRemoteAuth.m; sourceTree = "<group>"; };
 		D64EA981218375B0001B053B /* RNSpotifyRemoteAuth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNSpotifyRemoteAuth.h; sourceTree = "<group>"; };
-		D658F0DE2164059C004649AB /* SpotifyiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyiOS.framework; path = external/SpotifySDK/SpotifyiOS.framework; sourceTree = "<group>"; };
+		D658F0DE2164059C004649AB /* SpotifyiOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpotifyiOS.framework; path = external/SpotifyiOS.framework; sourceTree = "<group>"; };
 		D67AF671216E722E00859404 /* RNSpotifyRemoteSubscriptionCallback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNSpotifyRemoteSubscriptionCallback.h; sourceTree = "<group>"; };
 		D67AF672216E725000859404 /* RNSpotifyRemoteSubscriptionCallback.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSpotifyRemoteSubscriptionCallback.m; sourceTree = "<group>"; };
 		D67AF674216EC14700859404 /* RNSpotifyItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSpotifyItem.m; sourceTree = "<group>"; };
@@ -146,6 +146,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 58B511D21A9E6C8500147676;
@@ -281,18 +282,18 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/external/SpotifySDK/**",
+					"$(PROJECT_DIR)/external/**",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(PROJECT_DIR)/external/SpotifySDK/SpotifyiOS.framework/Headers",
+					"$(PROJECT_DIR)/external/SpotifyiOS.framework/Headers",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/external/SpotifySDK/",
+					"$(PROJECT_DIR)/external/",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = RNSpotifyRemote;
@@ -305,18 +306,18 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/external/SpotifySDK/**",
+					"$(PROJECT_DIR)/external/**",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(PROJECT_DIR)/external/SpotifySDK/SpotifyiOS.framework/Headers",
+					"$(PROJECT_DIR)/external/SpotifyiOS.framework/Headers",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/external/SpotifySDK/",
+					"$(PROJECT_DIR)/external/",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = RNSpotifyRemote;

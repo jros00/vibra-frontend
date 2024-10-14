@@ -4,6 +4,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <RNSpotifyRemote.h>
+#import <React/RCTLinkingManager.h>
 
 #if DEBUG
 #import <FlipperKit/FlipperClient.h>
@@ -60,7 +61,25 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)URL options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
 {
+  // Check if the URL scheme is "myapp" for custom handling
+    // if ([[URL scheme] isEqualToString:@"vibra"]) {
+    //     // Extract the necessary query parameters from the URL
+    //     NSString *token = [URL query];  // For example: "myapp://login?token=abc123"
+        
+    //     // Handle the token or any other action, such as routing the user to the login screen
+    //     [self handleCustomURLWithToken:token];
+        
+    //     return YES;
+    // }
   return [[RNSpotifyRemoteAuth sharedInstance] application:application openURL:URL options:options];
 }
+
+// // Helper method to handle custom URL schemes
+// - (void)handleCustomURLWithToken:(NSString *)token {
+//     // Implement your custom handling here
+//     // E.g., route to the login screen or pass the token to a relevant handler
+//     NSLog(@"Received token: %@", token);
+//     return [RCTLinkingManager application:application openURL:url options:options];  // Forward URL to React Native
+// }
 
 @end

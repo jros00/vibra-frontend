@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import { ContentItem, remote } from "react-native-spotify-remote";
+import { ContentItem, remote } from "../../src/index";
 import { ActionSheet, View, Button, Text } from "native-base";
 import { FlatList } from "react-native";
 import SpotifyContentListItem from "./SpotifyContentListItem";

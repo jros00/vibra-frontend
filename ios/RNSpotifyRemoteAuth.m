@@ -253,21 +253,33 @@ RCT_EXPORT_METHOD(authorize:(NSDictionary*)options resolve:(RCTPromiseResolveBlo
     
     // Initialize the auth flow
     if (@available(iOS 11, *)) {
-        RCTExecuteOnMainQueue(^{
-            // Use this on iOS 11 and above to take advantage of SFAuthenticationSession
-            [ self->_sessionManager
-                 initiateSessionWithScope:scope
-                 options:SPTDefaultAuthorizationOption
+    RCTExecuteOnMainQueue(^{
+        // Use this on iOS 11 and above to take advantage of SFAuthenticationSession
+        if ([self->_sessionManager respondsToSelector:@selector(initiateSessionWithScope:options:)]) {
+            [self->_sessionManager
+             initiateSessionWithScope:scope
+             options:SPTDefaultAuthorizationOption
+             campaign:nil
+             presentingViewController:[UIApplication sharedApplication].keyWindow.rootViewController
             ];
-        });
+        } else {
+            NSLog(@"SPTSessionManager does not recognize initiateSessionWithScope:options:");
+        }
+        
+    });
     } else {
         RCTExecuteOnMainQueue(^{
             // Use this on iOS versions < 11 to use SFSafariViewController
-            [ self->_sessionManager
-                initiateSessionWithScope:scope
-                options:SPTDefaultAuthorizationOption
-                presentingViewController:[UIApplication sharedApplication].keyWindow.rootViewController
-            ];
+            if ([self->_sessionManager respondsToSelector:@selector(initiateSessionWithScope:options:)]) {
+                [self->_sessionManager
+                    initiateSessionWithScope:scope
+                    options:SPTDefaultAuthorizationOption
+                    campaign:nil
+                    presentingViewController:[UIApplication sharedApplication].keyWindow.rootViewController
+                ];
+            } else {
+                NSLog(@"SPTSessionManager does not recognize initiateSessionWithScope:options:presentingViewController:");
+            }
         });
     }
 }

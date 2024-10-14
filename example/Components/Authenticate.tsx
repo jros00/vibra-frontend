@@ -3,9 +3,9 @@ import { View, Button, Text, Toast, Switch } from 'native-base';
 import styles from '../styles';
 import AppContext from '../AppContext';
 import { Platform } from 'react-native';
-import { ApiConfig } from 'react-native-spotify-remote';
+import { ApiConfig } from '../../src/index';
 
-const Authenticate: React.SFC = () => {
+const Authenticate: React.FC = () => {
     const { isConnected, token, onError, remote, authenticate } = useContext(AppContext)
     const [showDialog, setShowDialog] = useState(false);
     const [autoConnect, setAutoConnect] = useState(true);

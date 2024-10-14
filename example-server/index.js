@@ -196,5 +196,5 @@ app.post('/refresh', async (req, res) => {
 });
 
 // start server
-const spServerPort = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const spServerPort = process.env.PORT ? parseInt(process.env.PORT) : 8000;
 app.listen(spServerPort, () => console.log('Example app listening on port '+spServerPort+'!'));

@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback } from 'react';
 import { View, Button, Text, Toast, Switch, Segment, Icon } from 'native-base';
 import styles from '../styles';
 import AppContext from '../AppContext';
-import { RepeatMode } from 'react-native-spotify-remote';
+import { RepeatMode } from '../../src/index';
 import Slider from '@react-native-community/slider';
 import { Duration } from 'luxon';
 

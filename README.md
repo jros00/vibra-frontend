@@ -1,3 +1,81 @@
+# Emilia's installation process
+
+### Step 1. At developer.spotify.com
+Log in, go to dashboard and create an app.
+App name and description could be whatever but Redirect URIs MUST be
+
+    vibra://
+
+    Which API/SDKs are you planning to use? Choose all of them except ads.
+
+### Step 2. in /react-native-spotify-remote (the ROOT)
+
+    yarn add react-native-spotify-remote
+
+### Step 3. in /react-native-spotify-remote/example
+
+(I ran `yarn add react-native-spotify-remote` here to but i don't know if it was used or not. If you get an error including SpotifyiOS.h this might solve it)
+
+Follow the steps of in README in that folder.
+Set up the .env file as instructed with:
+
+SPOTIFY_REDIRECT_URL="vibra://"
+
+NOTE: the .env should be placed in the directory /react-native-spotify-remote/example
+
+
+### Step 4. in /react-native-spotify-remote/example-server
+
+Follow the steps of in README in that folder.
+Set up the .env file as instructed with:
+
+SPOTIFY_CLIENT_CALLBACK="vibra://"
+
+NOTE: the .env should be placed in the directory /react-native-spotify-remote/example-server
+
+
+### Step 5. Open Xcode (Download from App Store if not installed)
+
+Open /react-native-spotify-remote/example/ios (NOTE!! Not /react-native-spotify-remote/ios)
+
+#### Check if SpotifyiOS framework exists:
+  
+Click on the folder symbol in the very upper left corner -> Click on example (the main app) -> You should now be able to see a bar with "General", "Signing and Capabilities", "Resource Tags", "Info", "Build phases", "Build settings" and "Build Rules".
+
+-> Choose "Build Phases" -> Scroll down and click on "Link Binary with Libraries" -> Check if SpotifyiOS.xcframework is listed.
+
+#### If missing Spotify framework
+
+Go to https://github.com/spotify/ios-sdk/releases and download the zip file from v3.0.0 
+Click on the + under "Link Binary with Libraries" -> Add other... -> Add files... -> Locate the downloaded folder from spotify and select SpotifyiOS.xcframework (located direcly in the folder, do not select any other frameworks that are nested deeper in the structure)
+
+Go to "Build Settings" (One of the other fields in the bar field mentioned above) -> Search for "Framework Search Paths" -> Add the absolute path to the whole folder you downloaded from spotify. Once it is added, select it to be recursive. Go to the search field again and search for "Header Search Paths". Add the same path the same way here too (should also be recursive).
+
+### Step 5. Developer mode on Iphone
+
+Open Settings -> Scroll down and select Privacy & Security -> Scroll down and find Developer Mode -> Confirm Restart -> After your iPhone restarts, a pop-up will appear asking you to confirm enabling Developer Mode. Tap Turn On.
+
+### Step 6. Build the app
+
+NOTE!! DO NOT INSTALL THE RECOMMENDED SETTINGS XCODE SUGGESTS!!! 
+
+Make sure your computer and phone uses the same network and that you have Spotify installed on your phone.
+
+In the field in Xcode looking like a url field: Select your Iphone as target device. If you can't find it, connect your phone to the computer with cable. Once your target is selected, press the play button in the left upper corner. A file named Yoga might result in an error, use Xcode's suggestion and change | to ||. After this, navigate to "Product" in the top bar of the screen -> Select Clean Build Folder... -> Confirm. Hit the play button again
+
+NOTE!! Before every restart (if the previous build failed), make sure to clean the build folder.
+(If wanting to completely start over: Go to Finder -> Press Cmd+Shift+G -> Paste ~/Library/Developer/Xcode/ and remove the folder DerivedData)
+
+#### Solutions to possible errors
+If error occur including the word sandbox: Go to Build Settings -> Search for User Script Sandboxing -> Choose NO
+If error in any file occurs: go back to my code and copy the content of the specific file since the local installation process might have overwritten some changes I have done. I have changed in RNSpotifyRemoteAuth.m if SPTSessionManager problem arises. 
+
+To debug other problems: In the same menu as the the folder icon (the menu in the upper left corner) -> CLick on the protocol symbol (Report Navigator) -> Choose the latest build -> Check the error logs
+
+# Below follows the original README
+
+
+
 # Spotify App Remote for React Native
 
 [![npm version](https://badge.fury.io/js/react-native-spotify-remote.svg)](https://badge.fury.io/js/react-native-spotify-remote)

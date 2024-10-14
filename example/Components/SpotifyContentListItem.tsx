@@ -1,6 +1,6 @@
 import React from "react";
 import { ListItem, Left, View, Text, Body, Right } from "native-base";
-import { ContentItem } from "react-native-spotify-remote";
+import { ContentItem } from "../../src/index";
 
 const SpotifyContentListItem: React.SFC<{ onPress?: (item: ContentItem) => void, onLongPress?: (item: ContentItem) => void, item: ContentItem }> = ({
     item,

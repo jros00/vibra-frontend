@@ -10,7 +10,7 @@ import {
     RepeatMode,
     ContentItem,
     SpotifyAuth
-} from 'react-native-spotify-remote';
+} from '../src/index';
 import {
     SPOTIFY_CLIENT_ID,
     SPOTIFY_REDIRECT_URL,
@@ -71,11 +71,14 @@ class AppContextProvider extends React.Component<{}, AppContextState> {
     }
 
     componentDidMount() {
-        remote.on("remoteConnected", this.onConnected)
-            .on("remoteDisconnected", this.onDisconnected)
-            .on("playerStateChanged", this.onPlayerStateChanged)
-            .on("playerContextChanged", this.onPlayerContextChanged);
-
+        if (remote) {
+            remote.addListener("remoteConnected", this.onConnected);
+            remote.addListener("remoteDisconnected", this.onDisconnected);
+            remote.addListener("playerStateChanged", this.onPlayerStateChanged);
+            remote.addListener("playerContextChanged", this.onPlayerContextChanged);
+        } else {
+            console.error('Spotify remote is not initialized.');
+        }
         auth.getSession().then((session) => {
             if (session != undefined && session.accessToken != undefined) {
                 this.setState((state) => ({ ...state, token: session.accessToken }))
