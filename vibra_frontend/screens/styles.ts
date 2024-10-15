@@ -1,38 +1,30 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-    buttonContainer: {
-      position: 'absolute',
-      right: 20,
-      top: '40%',
-      alignItems: 'center',
-    },
-    currentSongContainer: {
-      position: 'absolute',
-      bottom: 30,
-      left: 0,
-      right: 0,
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      padding: 10,
-    },
-    currentSongText: {
-      color: '#fff',
-      fontSize: 18,
-    },
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: 'bold',
-    },
-    separator: {
-      marginVertical: 30,
-      height: 1,
-      width: '80%',
-    },
-  });
-  
+  gradientBackground: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  flatListContainer: {
+    paddingTop: 0,
+    paddingBottom: 50,
+  },
+  buttonGradient: {
+    position: 'absolute',
+    top: '40.5%', // Adjust to match the button container's location
+    right: 0,
+    width: 60, // Width of the gradient background
+    height: 200, // Height of the gradient background
+    justifyContent: 'center',
+    borderRadius: 25,
+    overflow: 'hidden',
+    marginRight: 20,
+    
+  },
+  buttonContainer: {
+    alignItems: 'center',
+  },
+});

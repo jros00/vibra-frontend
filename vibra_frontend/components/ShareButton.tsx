@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, Modal, View, FlatList, Button, StyleSheet } from 'react-native';
+import { TouchableOpacity, Modal, View, FlatList, Text, StyleSheet, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import config from '../config.json';
@@ -11,29 +11,17 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
 
-  const handleShare = async () => {
-    if (selectedConversation === null) return; // Ensure a conversation is selected
-    const apiUrl = `http://${config.MY_IP}:8000/action/share/`;
+  const handleShare = async (conversationId: number) => {
     try {
-      await axios.post(
-        apiUrl,
-        {
-          track_id,
-          group_ids: [selectedConversation], // Use array to match backend structure
-          message: "This track is great!",
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      console.log(`Track shared with conversation ID ${selectedConversation}`);
-      setModalVisible(false); // Close modal after sharing
+      const apiUrl = `http://${config.MY_IP}:8000/conversations/${conversationId}/share/`;
+      await axios.post(apiUrl, { track_id });
+      Alert.alert('Success', `Track shared with conversation ${conversationId}`);
     } catch (error) {
-      console.error('Error sharing track:', error);
+      Alert.alert('Error', 'Failed to share track');
+      console.error(error);
+    } finally {
+      setModalVisible(false);
     }
   };
 
@@ -42,34 +30,34 @@ const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) =>
   return (
     <>
       <TouchableOpacity style={styles.button} onPress={toggleModal}>
-        <Icon name="share" size={30} color="blue" />
+        <Icon name="share" size={30} color="white" />
       </TouchableOpacity>
 
       <Modal
         visible={modalVisible}
-        animationType="slide"
         transparent={true}
+        animationType="slide"
         onRequestClose={toggleModal}
       >
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Select a Conversation</Text>
-          <FlatList
-            data={conversations}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.conversationItem,
-                  selectedConversation === item.id && styles.selectedConversation,
-                ]}
-                onPress={() => setSelectedConversation(item.id)}
-              >
-                <Text style={styles.conversationText}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
-          <Button title="Share Track" onPress={handleShare} disabled={selectedConversation === null} />
-          <Button title="Cancel" onPress={toggleModal} />
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Share with:</Text>
+            <FlatList
+              data={conversations}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.conversationItem}
+                  onPress={() => handleShare(item.id)}
+                >
+                  <Text style={styles.conversationText}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </>
@@ -85,29 +73,35 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    borderRadius: 10,
     padding: 20,
+    marginTop: 50, // Adjust this value to move content further down
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: 'white',
   },
   conversationItem: {
-    padding: 10,
-    backgroundColor: 'white',
-    marginVertical: 5,
-    borderRadius: 5,
-    width: '80%',
-    alignItems: 'center',
-  },
-  selectedConversation: {
-    backgroundColor: '#d3d3d3',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   conversationText: {
     fontSize: 16,
+  },
+  closeButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: 'blue',
   },
 });
 
