@@ -307,8 +307,11 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
+  - RNEventEmitter (1.0.21):
+    - React
   - RNSpotifyRemote (1.0.0-1):
     - React-Core
+    - RNEventEmitter
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -361,7 +364,8 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - RNSpotifyRemote (from `../node_modules/react-native-spotify-remote`)
+  - RNEventEmitter (from `../node_modules/react-native-events`)
+  - RNSpotifyRemote (from `../../`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -432,8 +436,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNEventEmitter:
+    :path: "../node_modules/react-native-events"
   RNSpotifyRemote:
-    :path: "../node_modules/react-native-spotify-remote"
+    :path: "../../"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -475,10 +481,11 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  RNSpotifyRemote: d4b990cf88ced47cb8dfb6e41ae839007da47ca0
+  RNEventEmitter: 557106956ec2f9ccda6940afeea563936385efd3
+  RNSpotifyRemote: 73cec805d37dd027f73cfa66232a6c9c557d644d
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 34fc14c6759472bee6845ab6500d913257e029fe
+PODFILE CHECKSUM: ed0fc27be81558bdeeaa2d89d0e6c67e0b99cfc4
 
 COCOAPODS: 1.15.2

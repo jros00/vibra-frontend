@@ -10,7 +10,8 @@ target 'example' do
   use_react_native!(:path => config["reactNativePath"])
   
   # Want to install the pod from the source directory so we can change it while developing
-  pod 'RNSpotifyRemote', :path => '../node_modules/react-native-spotify-remote', :configurations => ['Debug', 'Release']
+  pod 'RNSpotifyRemote', :path => "../../" 
+  #pod 'RNSpotifyRemote', :path => '../node_modules/react-native-spotify-remote', :configurations => ['Debug', 'Release']
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and

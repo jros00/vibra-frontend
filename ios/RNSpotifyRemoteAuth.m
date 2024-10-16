@@ -255,12 +255,11 @@ RCT_EXPORT_METHOD(authorize:(NSDictionary*)options resolve:(RCTPromiseResolveBlo
     if (@available(iOS 11, *)) {
     RCTExecuteOnMainQueue(^{
         // Use this on iOS 11 and above to take advantage of SFAuthenticationSession
-        if ([self->_sessionManager respondsToSelector:@selector(initiateSessionWithScope:options:)]) {
+        if ([self->_sessionManager respondsToSelector:@selector(initiateSessionWithScope:options:campaign:)]) {
             [self->_sessionManager
              initiateSessionWithScope:scope
              options:SPTDefaultAuthorizationOption
              campaign:nil
-             presentingViewController:[UIApplication sharedApplication].keyWindow.rootViewController
             ];
         } else {
             NSLog(@"SPTSessionManager does not recognize initiateSessionWithScope:options:");
@@ -275,7 +274,6 @@ RCT_EXPORT_METHOD(authorize:(NSDictionary*)options resolve:(RCTPromiseResolveBlo
                     initiateSessionWithScope:scope
                     options:SPTDefaultAuthorizationOption
                     campaign:nil
-                    presentingViewController:[UIApplication sharedApplication].keyWindow.rootViewController
                 ];
             } else {
                 NSLog(@"SPTSessionManager does not recognize initiateSessionWithScope:options:presentingViewController:");

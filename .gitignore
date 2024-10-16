@@ -57,3 +57,8 @@ buck-out/
 \.buckd/
 *.keystore
 
+.gitattributes
+.gitmodules
+.watchmanconfig
+*.lock
+.github
