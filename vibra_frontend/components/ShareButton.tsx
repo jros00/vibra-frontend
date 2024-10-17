@@ -11,21 +11,43 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedConversations, setSelectedConversations] = useState<number[]>([]);
 
-  const handleShare = async (conversationId: number) => {
+  const handleShare = async () => {
+    if (selectedConversations.length === 0) return;
+    const apiUrl = `http://${config.MY_IP}:8000/action/share/`;
     try {
-      const apiUrl = `http://${config.MY_IP}:8000/conversations/${conversationId}/share/`;
-      await axios.post(apiUrl, { track_id });
-      Alert.alert('Success', `Track shared with conversation ${conversationId}`);
+      await axios.post(
+        apiUrl,
+        {
+          track_id,
+          group_ids: selectedConversations,
+          message: "This track is great!",
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      Alert.alert('Success', 'Track shared with selected conversations');
+      setModalVisible(false);
+      setSelectedConversations([]);
     } catch (error) {
       Alert.alert('Error', 'Failed to share track');
-      console.error(error);
-    } finally {
-      setModalVisible(false);
+      console.error('Error sharing track:', error);
     }
   };
 
   const toggleModal = () => setModalVisible(!modalVisible);
+
+  const toggleConversationSelection = (conversationId: number) => {
+    setSelectedConversations((prevSelected) =>
+      prevSelected.includes(conversationId)
+        ? prevSelected.filter(id => id !== conversationId)
+        : [...prevSelected, conversationId]
+    );
+  };
 
   return (
     <>
@@ -41,22 +63,35 @@ const ShareButton: React.FC<ShareButtonProps> = ({ track_id, conversations }) =>
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Share with:</Text>
+            <Text style={styles.modalTitle}>Select Conversations</Text>
             <FlatList
               data={conversations}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.conversationItem}
-                  onPress={() => handleShare(item.id)}
+                  style={[
+                    styles.conversationItem,
+                    selectedConversations.includes(item.id) && styles.selectedConversation,
+                  ]}
+                  onPress={() => toggleConversationSelection(item.id)}
                 >
                   <Text style={styles.conversationText}>{item.name}</Text>
                 </TouchableOpacity>
               )}
+              contentContainerStyle={{ flexGrow: 1 }}
             />
-            <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity onPress={toggleModal} style={styles.cancelButton}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleShare}
+                style={[styles.shareButton, selectedConversations.length === 0 && styles.disabledButton]}
+                disabled={selectedConversations.length === 0}
+              >
+                <Text style={styles.buttonText}>Share Track</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -80,28 +115,55 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 10,
     padding: 20,
-    marginTop: 50, // Adjust this value to move content further down
+    marginTop: 0,
+    maxHeight: '95%',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
+  },
+  listContainer: {
+    maxHeight: 200, // Limit height of the list container to make it scrollable if too long
   },
   conversationItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    alignItems: 'center',
+  },
+  selectedConversation: {
+    backgroundColor: '#d3d3d3',
   },
   conversationText: {
     fontSize: 16,
   },
-  closeButton: {
-    marginTop: 20,
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  shareButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    flex: 0.48,
     alignItems: 'center',
   },
-  closeButtonText: {
+  cancelButton: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+    flex: 0.48,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'lightgray',
+  },
+  buttonText: {
+    color: 'white',
     fontSize: 16,
-    color: 'blue',
   },
 });
 
