@@ -1,8 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen';
-import ForYouScreen from '../screens/ForYouScreen';
-import ChatNavigator from './ChatNavigator';
+import HomeScreen from '../screens/HomeScreen'; // Ensure this path is correct
+import ForYouScreen from '../screens/ForYouScreen'; // Ensure this path is correct
+import ChatNavigator from './ChatNavigator'; // Ensure this path is correct
+import ProfileScreen from '../screens/ProfileScreen'; // Ensure this path is correct
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -12,7 +13,7 @@ const TabNavigator = () => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => {
-        let iconName: 'home' | 'star' | 'people' = 'home';
+        let iconName: 'home' | 'star' | 'people' | 'person' = 'home';
 
         if (route.name === 'Home') {
           iconName = 'home';
@@ -20,6 +21,8 @@ const TabNavigator = () => {
           iconName = 'star';
         } else if (route.name === 'Friends') {
           iconName = 'people';
+        } else if (route.name === 'Profile') {
+          iconName = 'person';
         }
 
         return {
@@ -35,6 +38,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="For You" component={ForYouScreen} />
       <Tab.Screen name="Friends" component={ChatNavigator} />
+      <Tab.Screen name="Profile" component={ProfileScreen} /> {/* Ensure this path is correct */}
     </Tab.Navigator>
   );
 };
