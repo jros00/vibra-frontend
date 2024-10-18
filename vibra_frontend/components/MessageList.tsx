@@ -1,65 +1,70 @@
 import React from 'react';
-import { FlatList, View, Text, Image, StyleSheet } from 'react-native';
+import { FlatList, View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import { Message } from '@/types/Message';
 
 interface MessageListProps {
   messages: Message[];
   flatListRef: React.RefObject<FlatList<Message>>;
+  onSongPress: (message: Message) => void; // Add a press handler for song messages
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, flatListRef }) => {
-  const renderMessage = ({ item }: { item: Message }) => (
-    <View style={styles.messageContainer}>
-      {item.track ? (
-        // Layout for messages containing track information
-        <View style={styles.trackMessage}>
-          <Image source={{ uri: item.track.album_image }} style={styles.albumCover} />
-          <View style={styles.trackDetails}>
-            <Text style={styles.songTitle}>{item.track.track_title}</Text>
-            <Text style={styles.artistName}>{item.track.artist_name}</Text>
-            <Text style={styles.sender}>{item.sender.username}:</Text>
-            <Text>{item.content || 'No content available'}</Text>
-          </View>
-        </View>
-      ) : (
-        // Layout for regular text messages
-        <View style={styles.textMessage}>
-          <Text style={styles.sender}>{item.sender.username}:</Text>
-          <Text>{item.content || 'No content available'}</Text>
-        </View>
-      )}
-      <Text style={styles.timestamp}>
-        {item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : 'Invalid time'}
-      </Text>
-    </View>
-  );
-
+const MessageList: React.FC<MessageListProps> = ({ messages, flatListRef, onSongPress }) => {
   return (
     <FlatList
       ref={flatListRef}
       data={messages}
       keyExtractor={(item) => item.id.toString()}
-      renderItem={renderMessage}
+      renderItem={({ item }) => (
+        <View style={styles.message}>
+          <Text style={styles.sender}>{item.sender.username || 'Unknown sender'}:</Text>
+
+          {/* Check if the message contains a song */}
+          {item.track ? (
+            <View style={styles.songContainer}>
+              {/* Album Cover */}
+              <TouchableOpacity onPress={() => onSongPress(item)}>
+                <Image
+                  source={{ uri: item.track.album_image }}
+                  style={styles.albumCover}
+                />
+              </TouchableOpacity>
+
+              {/* Song Title and Artist */}
+              <View style={styles.songDetails}>
+                <Text style={styles.songTitle}>{item.track.track_title}</Text>
+                <Text style={styles.artistName}>{item.track.artist_name}</Text>
+              </View>
+            </View>
+          ) : (
+            // Regular message content
+            <Text>{item.content || 'No content available'}</Text>
+          )}
+
+          {/* Timestamp */}
+          <Text style={styles.timestamp}>
+            {item?.timestamp ? new Date(item.timestamp).toLocaleTimeString() : 'Invalid time'}
+          </Text>
+        </View>
+      )}
       onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  messageContainer: {
+  message: {
+    padding: 10,
     marginVertical: 5,
-    padding: 10,
-  },
-  textMessage: {
     backgroundColor: '#f0f0f0',
-    padding: 10,
     borderRadius: 5,
   },
-  trackMessage: {
-    flexDirection: 'row',
-    backgroundColor: '#e0f7fa',
-    padding: 10,
-    borderRadius: 8,
+  sender: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  songContainer: {
+    flexDirection: 'row', // Place album cover and song details side by side
+    alignItems: 'center',
   },
   albumCover: {
     width: 50,
@@ -67,8 +72,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginRight: 10,
   },
-  trackDetails: {
-    flex: 1,
+  songDetails: {
+    flex: 1, // Allow song details to fill available space
   },
   songTitle: {
     fontSize: 16,
@@ -78,19 +83,11 @@ const styles = StyleSheet.create({
   artistName: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 5,
-  },
-  sender: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#555',
-    marginBottom: 5,
   },
   timestamp: {
     fontSize: 10,
     color: '#666',
     marginTop: 5,
-    alignSelf: 'flex-end',
   },
 });
 
