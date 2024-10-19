@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
 import TabNavigator from './TabNavigator';
-import SongDetail from '../screens/ChatSong'; // Add this line to import SongDetail
+import SongDetail from '../screens/ChatSong';
 
 const RootStack = createStackNavigator();
 console.log('appnavigator loaded')

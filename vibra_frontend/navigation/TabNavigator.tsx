@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen'; // Ensure this path is correct
-import ForYouScreen from '../screens/ForYouScreen'; // Ensure this path is correct
-import ChatNavigator from './ChatNavigator'; // Ensure this path is correct
-import ProfileScreen from '../screens/ProfileScreen'; // Ensure this path is correct
+import HomeScreen from '../screens/HomeScreen';
+import ForYouScreen from '../screens/ForYouScreen';
+import ChatNavigator from './ChatNavigator';
+import ProfileScreen from '../screens/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -38,7 +38,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="For You" component={ForYouScreen} />
       <Tab.Screen name="Friends" component={ChatNavigator} />
-      <Tab.Screen name="Profile" component={ProfileScreen} /> {/* Ensure this path is correct */}
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
