@@ -12,7 +12,7 @@ console.log('appnavigator loaded')
 const AppNavigator = () => {
   return (
     <RootStack.Navigator initialRouteName="Login">
-      <RootStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+     {<RootStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />}
       <RootStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <RootStack.Screen
         name="SongDetail"

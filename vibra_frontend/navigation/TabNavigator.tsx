@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import ForYouScreen from '../screens/ForYouScreen';
 import ChatNavigator from './ChatNavigator';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/ProfileScreenOscar';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -38,7 +38,8 @@ const TabNavigator = () => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="For You" component={ForYouScreen} />
       <Tab.Screen name="Friends" component={ChatNavigator} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} initialParams={{ username: 'yourDefaultUsername' }} // Pass the default username here
+/>
     </Tab.Navigator>
   );
 };

@@ -47,7 +47,7 @@ export default function LoginScreen() {
         const { message } = response.data;
         setCurrentUser(userName);  // Set the current user
         Alert.alert('Success', `Logged in as ${userName}: ${message}`);
-        navigation.navigate('Main');
+        navigation.navigate('Main', { username: userName }); //navigation.navigate('Main');
       }
     } catch (error) {
       const err = error as AxiosError<LoginResponse>;
