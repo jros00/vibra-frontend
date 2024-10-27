@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, Platform, SafeAreaView } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, Platform, SafeAreaView, ActivityIndicator } from 'react-native';
 import { useSongFeed } from '@/hooks/useSongFeed';
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
@@ -21,16 +21,15 @@ export default function ForYouScreen() {
     cardHeight,
     setCardHeight,
     soundRef, // Destructure soundRef here
+    loadMoreSongs,
   } = useSongFeed();
 
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }) => {
-      console.log("Viewable items changed:", viewableItems);
       if (viewableItems?.length > 0) {
         const inFocusSong = viewableItems[0].item;
         setCurrentSong(inFocusSong);
         handlePlaySong(inFocusSong.audio_url);
-        console.log("Now playing song:", inFocusSong);
       }
     },
     [setCurrentSong, handlePlaySong]
@@ -51,7 +50,7 @@ export default function ForYouScreen() {
       <SafeAreaView style={styles.container}>
         <FlatList
           data={songFeed}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())} // Add index as fallback
           renderItem={({ item }) => (
             <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
               <SongCard
@@ -74,7 +73,11 @@ export default function ForYouScreen() {
           viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
           bounces={false}
           overScrollMode="never"
+          onEndReached={loadMoreSongs} // Trigger when end is reached
+          onEndReachedThreshold={0.5}  // Load more when the user is halfway through the current list
+          ListFooterComponent={<ActivityIndicator size="small" color="#0000ff" />} // Show loading indicator when loading more songs
         />
+
         {currentSong && <NowPlayingBar title={currentSong.track_title} artist={currentSong.artist_name} />}
       </SafeAreaView>
     </LinearGradient>

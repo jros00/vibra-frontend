@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchChats, loadInitialRecommendations } from '@/services/ForYouApi';
+import { fetchChats, loadInitialRecommendations, getRecommendations } from '@/services/ForYouApi'; // Assume `loadMoreRecommendations` is implemented
 import { playSong, stopAudio, togglePlayPause } from '@/services/AudioService';
 import { Audio } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
@@ -20,6 +20,7 @@ export const useSongFeed = () => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [conversations, setConversations] = useState<{ id: number; name: string }[]>([]);
   const [cardHeight, setCardHeight] = useState<number>(0);
+  const [loadingMore, setLoadingMore] = useState(false); // New state to track loading more songs
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const isFocused = useIsFocused();
@@ -34,7 +35,7 @@ export const useSongFeed = () => {
       console.log("Loaded initial recommendations:", initialRecs);
 
       if (initialRecs.length > 0) {
-        const initialFeed = initialRecs.slice(0, 2).map((song, i) => ({ ...song, id: i }));
+        const initialFeed = initialRecs.slice(0, 5); // Fetch the first 5 songs
         setSongFeed(initialFeed);
         console.log("Initial song feed set:", initialFeed);
       }
@@ -58,6 +59,25 @@ export const useSongFeed = () => {
     togglePlayPause(soundRef, isPlaying, setIsPlaying);
   };
 
+  const loadMoreSongs = async () => {
+    if (loadingMore) return; // Prevent multiple requests at the same time
+  
+    setLoadingMore(true);
+    try {
+      const lastSong = songFeed[songFeed.length - 1]; // Get the last song in the feed
+      const newSongs = await getRecommendations(lastSong?.track_id); // Fetch more songs based on the last song's track_id
+      if (newSongs.length > 0) {
+        setSongFeed((prevFeed) => [...prevFeed, ...newSongs]); // Append the new songs
+      }
+      console.log("Loaded more songs:", newSongs);
+    } catch (error) {
+      console.error("Error loading more songs:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+  
+
   return {
     songFeed,
     recommendations,
@@ -72,5 +92,6 @@ export const useSongFeed = () => {
     cardHeight,
     setCardHeight,
     soundRef,
+    loadMoreSongs, // Return the loadMoreSongs function
   };
 };
