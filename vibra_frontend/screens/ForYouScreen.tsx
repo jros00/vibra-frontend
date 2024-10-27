@@ -61,6 +61,8 @@ export default function ForYouScreen() {
                 conversations={conversations}
                 isPlaying={isPlaying}
                 onTogglePlayPause={handleTogglePlayPause}
+                palette={item.album_image_palette}
+                dominantColor={item.album_image_dominant_color}
               />
             </TouchableOpacity> 
           )}

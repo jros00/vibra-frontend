@@ -5,6 +5,19 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import PreferenceButton from '@/components/PreferenceButton';
 import ShareButton from '@/components/ShareButton';
 
+// Utility function to convert RGB array to hex color string
+const rgbToHex = (rgb: number[] = []): string => {
+  return (
+    '#' +
+    rgb
+      .map((value) => {
+        const hex = value.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      })
+      .join('')
+  );
+};
+
 interface SongCardProps {
   image: any;
   title: string;
@@ -13,6 +26,8 @@ interface SongCardProps {
   conversations: Array<{ id: number; name: string }>;
   isPlaying: boolean;
   onTogglePlayPause: () => void;
+  palette?: Array<Array<number>>;
+  dominantColor?: Array<number>;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -25,7 +40,21 @@ const SongCard: React.FC<SongCardProps> = ({
   conversations,
   isPlaying,
   onTogglePlayPause,
+  palette = [],
+  dominantColor = [0, 0, 0]
 }) => {
+  // Convert the dominant color and palette to hex
+  const dominantColorHex = rgbToHex(dominantColor);
+  const paletteHex = palette.map((rgbArray) => rgbToHex(rgbArray));
+
+  // Ensure we have at least two colors for the gradient
+  const gradientColors = [dominantColorHex, ...paletteHex];
+
+  // If fewer than two colors, add a fallback color
+  if (gradientColors.length < 2) {
+    gradientColors.push('#ffffff'); // Adding white as a fallback
+  }
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const handlePlayPause = () => {
@@ -44,7 +73,7 @@ const SongCard: React.FC<SongCardProps> = ({
 
   return (
     <TouchableOpacity onPress={handlePlayPause} style={styles.cardContainer}>
-      <LinearGradient colors={['#000', '#333']} style={styles.gradientBackground}>
+      <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
         <Image source={image} style={styles.image} resizeMode="cover" />
 
         {/* Play/Pause Button Overlay with Animated Visibility */}
