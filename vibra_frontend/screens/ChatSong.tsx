@@ -1,134 +1,134 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FlatList, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
-import SongCardChat from '@/components/SongCardChat';
+import { LinearGradient } from 'expo-linear-gradient';
+import SongCard from '@/components/SongCard';
+import NowPlayingBar from '@/components/NowPlayingBar';
+import { stopAudio, playSong } from '@/services/AudioService';
 
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const SongDetail = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { selectedMessage, songMessages } = route.params;
+  const { selectedMessage, songMessages } = route.params; // Only load songs from the chat
+
   const [currentTrack, setCurrentTrack] = useState(selectedMessage.track);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const flatListRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [cardHeight, setCardHeight] = useState(height); // Set card height to screen height
   const soundRef = useRef(null);
+  const flatListRef = useRef(null);
 
-  const playAudio = async (audioUrl) => {
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-    }
-
-    const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
-    soundRef.current = sound;
-    await sound.playAsync();
-    setIsPlaying(true);
+  const handlePlaySong = (audioUrl) => {
+    playSong(audioUrl, soundRef, setIsPlaying);
   };
 
-  const pauseAudio = async () => {
-    if (soundRef.current) {
-      await soundRef.current.pauseAsync();
-      setIsPlaying(false);
-    }
-  };
-
-  const togglePlayPause = () => {
+  const handleTogglePlayPause = () => {
     if (isPlaying) {
-      pauseAudio();
+      stopAudio(soundRef);
+      setIsPlaying(false);
     } else {
-      playAudio(currentTrack.audio_url);
+      handlePlaySong(currentTrack.audio_url);
     }
+  };
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }) => {
+      if (viewableItems?.length > 0) {
+        const inFocusSong = viewableItems[0].item.track;
+        if (inFocusSong.track_id !== currentTrack.track_id) {
+          setCurrentTrack(inFocusSong);
+          handlePlaySong(inFocusSong.audio_url);
+        }
+      }
+    },
+    [currentTrack, handlePlaySong]
+  );
+
+  const onCardLayout = (event) => {
+    setCardHeight(event.nativeEvent.layout.height);
   };
 
   useEffect(() => {
-    playAudio(currentTrack.audio_url);
+    handlePlaySong(currentTrack.audio_url);
 
     return () => {
-      if (soundRef.current) {
-        soundRef.current.stopAsync();
-        soundRef.current.unloadAsync();
-      }
+      stopAudio(soundRef);
     };
   }, [currentTrack]);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', () => {
-      if (soundRef.current) {
-        soundRef.current.stopAsync();
-        soundRef.current.unloadAsync();
-      }
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  // Find the index of the selected song in the songMessages array
-  const selectedIndex = songMessages.findIndex(message => message.track.track_id === selectedMessage.track.track_id);
-
-  useEffect(() => {
-    // Scroll to the selected song when the screen is first opened
+    const selectedIndex = songMessages.findIndex(
+      (message) => message.track.track_id === selectedMessage.track.track_id
+    );
     if (flatListRef.current && selectedIndex !== -1) {
       flatListRef.current.scrollToIndex({ index: selectedIndex, animated: false });
     }
-  }, [selectedIndex]);
+  }, [selectedMessage, songMessages]);
 
-  const onViewableItemsChanged = ({ viewableItems }) => {
-    const track = viewableItems[0]?.item.track;
-    if (track && track.track_id !== currentTrack.track_id) {
-      setCurrentTrack(track);
-    }
-  };
+  // Use useFocusEffect to stop the audio when navigating back to the chat
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        stopAudio(soundRef); // Stop the audio when the screen loses focus
+      };
+    }, [soundRef])
+  );
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={30} color="white" />
-      </TouchableOpacity>
+    <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.gradientBackground}>
+      <SafeAreaView style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={30} color="white" />
+        </TouchableOpacity>
 
-      <FlatList
-        ref={flatListRef}
-        data={songMessages}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.songCardContainer}>
-            <SongCardChat
-              image={{ uri: item.track.album_image }}
-              title={item.track.track_title}
-              description={item.track.artist_name}
-              isPlaying={currentTrack.track_id === item.track.track_id && isPlaying}
-              onTogglePlayPause={togglePlayPause}
-            />
-          </View>
-        )}
-        getItemLayout={(data, index) => ({ length: height, offset: height * index, index })}
-        pagingEnabled
-        decelerationRate="fast"
-        showsVerticalScrollIndicator={false}
-        snapToAlignment="start"
-        snapToInterval={height} // Ensures smooth scrolling for each song card
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
-        bounces={false}
-      />
-    </View>
+        <FlatList
+          ref={flatListRef}
+          data={songMessages} // Only use the chat's song messages
+          keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())} // Fallback for key
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
+              <SongCard
+                image={{ uri: item.track.album_image }}
+                title={item.track.track_title}
+                description={item.track.artist_name}
+                track_id={item.track.track_id}
+                isPlaying={currentTrack.track_id === item.track.track_id && isPlaying}
+                onTogglePlayPause={handleTogglePlayPause}
+                palette={item.track.album_image_palette}
+                dominantColor={item.track.album_image_dominant_color}
+              />
+            </TouchableOpacity>
+          )}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          snapToAlignment="start"
+          snapToInterval={cardHeight}
+          decelerationRate="fast"
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+        />
+
+        {currentTrack && <NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name} />}
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#192f6a',
+    backgroundColor: 'transparent',
   },
   backButton: {
     position: 'absolute',
     top: 40,
     left: 20,
     zIndex: 1,
-  },
-  songCardContainer: {
-    height: height, // Ensures each card takes up the full screen height
-    justifyContent: 'center',
   },
 });
 
