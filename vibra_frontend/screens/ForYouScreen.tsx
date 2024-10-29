@@ -1,11 +1,12 @@
-import React, { useCallback } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, Platform, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, Platform, SafeAreaView, ActivityIndicator, ViewToken } from 'react-native';
 import { useSongFeed } from '@/hooks/useSongFeed';
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { stopAudio } from '@/services/AudioService';
+import { Song } from '@/types/Song';
 
 export default function ForYouScreen() {
   const {
@@ -24,24 +25,62 @@ export default function ForYouScreen() {
     loadMoreSongs,
   } = useSongFeed();
 
+  const [inFocusSong, setInFocusSong] = useState<Song | null>(null);; // Track the currently focused song
+  const playingRef = useRef(false); // Track if a song is currently playing or loading
+
+  // Handle updating the in-focus song from visible items
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }) => {
-      if (viewableItems?.length > 0) {
-        const inFocusSong = viewableItems[0].item;
-        setCurrentSong(inFocusSong);
-        handlePlaySong(inFocusSong.audio_url);
-      }
-    },
-    [setCurrentSong, handlePlaySong]
+      ({ viewableItems }: { viewableItems: any }) => {
+        if (viewableItems?.length > 0) {
+          const song = viewableItems[0].item;
+          console.info("In focus:", song.track_title);
+          setInFocusSong(song); // Update the focused song
+        }
+      },
+      []
   );
+
+
+  // useEffect to play the song when inFocusSong changes
+  useEffect(() => {
+    if (inFocusSong && currentSong?.track_id !== inFocusSong.track_id && !playingRef.current) {
+      playingRef.current = true; // Set flag to prevent overlapping playback
+      setCurrentSong(inFocusSong);
+
+      handlePlaySong(inFocusSong.audio_url)
+        .then(() => {
+          playingRef.current = false; // Reset flag when playback starts
+        })
+        .catch((error) => {
+          console.warn("Error in playback:", error);
+          playingRef.current = false; // Reset flag in case of an error
+        });
+    }
+
+    else if (inFocusSong && currentSong?.track_id !== inFocusSong.track_id && playingRef.current) {
+      handlePlaySong(inFocusSong.audio_url)
+      .then(() => {
+        playingRef.current = false; // Reset flag when playback starts
+      })
+      .catch((error) => {
+        console.warn("Error in playback:", error);
+        playingRef.current = false; // Reset flag in case of an error
+      });
+    }
+  }, [inFocusSong, currentSong, setCurrentSong, handlePlaySong, soundRef]);
+
 
   const onCardLayout = (event: any) => {
     setCardHeight(event.nativeEvent.layout.height);
   };
 
+
   useFocusEffect(
     useCallback(() => {
-      return () => stopAudio(soundRef);
+      return () => {
+        stopAudio(soundRef);
+        playingRef.current = false; // Reset on component unmount
+      };
     }, [soundRef])
   );
 
@@ -80,7 +119,7 @@ export default function ForYouScreen() {
           ListFooterComponent={<ActivityIndicator size="small" color="#0000ff" />} // Show loading indicator when loading more songs
         />
 
-        {currentSong && <NowPlayingBar title={currentSong.track_title} artist={currentSong.artist_name} />}
+        {inFocusSong && <NowPlayingBar title={inFocusSong.track_title} artist={inFocusSong.artist_name} />}
       </SafeAreaView>
     </LinearGradient>
   );

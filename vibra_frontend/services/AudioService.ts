@@ -17,6 +17,7 @@ export const enableAudio = async () => {
   }
 };
 
+
 export const playSong = async (
   audio_url: string,
   soundRef: React.MutableRefObject<Audio.Sound | null>,
@@ -37,12 +38,18 @@ export const playSong = async (
 };
 
 export const stopAudio = async (soundRef: React.MutableRefObject<Audio.Sound | null>) => {
-  if (soundRef.current) {
-    await soundRef.current.stopAsync();
-    await soundRef.current.unloadAsync();
-    soundRef.current = null;
+  try {
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null; // Clear the reference to ensure no audio instance is left
+    }
+  } catch (error) {
+    console.warn("Error stopping audio:", error);
   }
 };
+
+
 
 export const togglePlayPause = async (
   soundRef: React.MutableRefObject<Audio.Sound | null>,

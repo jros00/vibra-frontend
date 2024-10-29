@@ -7,9 +7,9 @@ import { useIsFocused } from '@react-navigation/native';
 interface Song {
   id: number;
   track_id: number;
-  album_image: URL;
+  album_image: string;
   artist_name: string;
-  audio_url: URL;
+  audio_url: string;
   track_title: string;
 }
 
@@ -24,6 +24,8 @@ export const useSongFeed = () => {
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const isFocused = useIsFocused();
+
+  const [isChangingSong, setIsChangingSong] = useState(false); // New state to prevent overlapping calls
 
   // Initial data loading on mount
   useEffect(() => {
@@ -51,8 +53,22 @@ export const useSongFeed = () => {
     }
   }, [isFocused]);
 
-  const handlePlaySong = (audio_url: string) => {
-    playSong(audio_url, soundRef, setIsPlaying);
+  // const handlePlaySong = (audio_url: string) => {
+  //   playSong(audio_url, soundRef, setIsPlaying);
+  // };
+
+  // Await playSong: Ensures that handlePlaySong waits for playSong to complete before proceeding
+  const handlePlaySong = async (audio_url: string) => {
+    if (isChangingSong) return; // Prevent overlapping calls
+    setIsChangingSong(true);
+    try {
+      await stopAudio(soundRef); // Ensure the current audio stops
+      await playSong(audio_url, soundRef, setIsPlaying); // Play the new audio
+    } catch (error) {
+      console.error('Error in handlePlaySong:', error);
+    } finally {
+      setIsChangingSong(false);
+    }
   };
 
   const handleTogglePlayPause = () => {
