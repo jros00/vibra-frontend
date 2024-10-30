@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import axios, { AxiosError } from 'axios';
-import config from '../config.json';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/types'; // Adjust as needed
-
-interface LoginResponse {
-  message: string;
-  token?: string;
-}
+import { RootStackParamList } from '../navigation/types';
+import { loginUser } from '../services/authService';
+import { fetchUserProfile } from '../services/profileService';
+import { useUser } from '../hooks/useUser';
 
 const predefinedUsers = [
   { id: 1, name: 'Emilia' },
@@ -19,56 +15,29 @@ const predefinedUsers = [
   { id: 4, name: 'Laura' },
   { id: 5, name: 'Hugo' },
 ];
-console.log('inside login')
+
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
-  const [currentUser, setCurrentUser] = useState<string | null>(null); // Define currentUser state
-  const [loading, setLoading] = useState(false);                       // Define loading state
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);     // Define csrfToken state
+  const { setProfile } = useUser();
+  const [loading, setLoading] = useState(false);                       
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);     
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const handleLogin = async (userName: string) => {
     setLoading(true);
-    try {
-      const response = await axios.post<LoginResponse>(
-        `http://${config.MY_IP}:8000/login/`,
-        { username: userName },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken ?? '',  // Include the CSRF token in the headers
-          },
-          withCredentials: true,  // Ensure cookies are sent with the request
-        }
-      );
+    const loginResponse = await loginUser(userName, csrfToken);
 
-      if (response.status === 200) {
-        const { message } = response.data;
-        setCurrentUser(userName);  // Set the current user
-        Alert.alert('Success', `Logged in as ${userName}: ${message}`);
+    if (loginResponse) {
+      const profileData = await fetchUserProfile(userName);
+      if (profileData) {
+        setProfile(profileData);
         navigation.navigate('Main');
-      }
-    } catch (error) {
-      const err = error as AxiosError<LoginResponse>;
-      if (err.response) {
-        const status = err.response.status;
-        const data = err.response.data as LoginResponse;
-        if (status === 401) {
-          Alert.alert('Unauthorized', 'Invalid credentials, please try again.');
-        } else if (status === 500) {
-          Alert.alert('Server Error', 'There was a problem on the server. Please try again later.');
-        } else {
-          Alert.alert('Error', data?.message || 'Unable to log in');
-        }
-      } else if (err.request) {
-        Alert.alert('Network Error', 'Unable to reach the server. Please check your network connection.');
       } else {
-        Alert.alert('Error', 'An unexpected error occurred.');
+        Alert.alert('Error', 'Could not load profile data');
       }
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (

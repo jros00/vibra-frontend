@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, FlatList } from 'react-native';
+import { View } from '@/components/Themed';
 import { fetchMessages, sendMessage } from '../services/MessageApi';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -7,6 +8,7 @@ import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Message } from '@/types/Message';
 import MessageList from '@/components/MessageList';
 import MessageInput from '@/components/MessageInput';
+import { useUser } from '../hooks/useUser';
 
 // Define the param list for the stack navigator
 type RootStackParamList = {
@@ -26,11 +28,15 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = ({ route }) => {
   const { chatId } = route.params;
-  const navigation = useNavigation();
+  const { profile } = useUser();
+  const currentUserId = profile?.id || 0;
+
+  // Use explicit typing for navigation
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const flatListRef = useRef(null); // For auto-scrolling
+  const flatListRef = useRef<FlatList<Message>>(null);
 
   // Fetch initial messages when the component mounts
   useEffect(() => {
@@ -83,13 +89,12 @@ const Chat: React.FC<ChatProps> = ({ route }) => {
   const songMessages = messages.filter((msg) => msg.track);
 
   // Handle song tap and navigate to SongDetail
-const handleSongPress = (message) => {
-  navigation.navigate('SongDetail', {
-    selectedMessage: message, // Pass the specific message
-    songMessages: messages.filter(m => m.track), // Pass only messages with songs
-  });
-};
-
+  const handleSongPress = (message: Message) => {
+    navigation.navigate('SongDetail', {
+      selectedMessage: message,
+      songMessages: messages.filter((m) => m.track),
+    });
+  };
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -100,7 +105,8 @@ const handleSongPress = (message) => {
       <MessageList
         messages={messages}
         flatListRef={flatListRef}
-        onSongPress={handleSongPress} // Pass handleSongPress to MessageList
+        onSongPress={handleSongPress}
+        currentUserId={currentUserId}
       />
       <MessageInput
         newMessage={newMessage}

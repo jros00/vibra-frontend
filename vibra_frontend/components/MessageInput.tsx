@@ -15,6 +15,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ newMessage, setNewMessage, 
         onChangeText={setNewMessage}
         style={styles.input}
         placeholder="Type a message..."
+        placeholderTextColor="#fff"
       />
       <Button title="Send" onPress={handleSend} />
     </View>
@@ -26,15 +27,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#fff',
+    color: '#fff',
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#fff',
     borderRadius: 5,
     paddingHorizontal: 10,
     marginRight: 10,
+    color: '#fff',
   },
 });
 

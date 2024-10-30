@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import AppNavigator from './navigation/AppNavigator';
 import './axiosSetup'; // Import the Axios setup to initialize interceptors
+import { UserProvider } from '@/contexts/userContext';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -32,7 +33,9 @@ const App = () => {
   return (
     <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
       <NavigationContainer theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AppNavigator />
+        <UserProvider>
+          <AppNavigator/>
+        </UserProvider>
       </NavigationContainer>
     </View>
   );
