@@ -29,8 +29,13 @@ const TabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name={iconName} size={size} color={color} />
           ),
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
+          tabBarActiveTintColor: '#514C92',
+          tabBarInactiveTintColor: '#9C96E3',
+          tabBarStyle: {
+            backgroundColor: 'transparent',  
+            //position: 'absolute',            
+            borderTopWidth: 0,               
+          },
           headerShown: false,
         };
       }}

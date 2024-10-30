@@ -3,6 +3,7 @@ export interface Message {
   content: string;
   timestamp: string;
   sender: {
+    id: number;
     username: string;
     profile_picture: string;
   };

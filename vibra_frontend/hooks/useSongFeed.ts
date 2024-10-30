@@ -3,15 +3,7 @@ import { fetchChats, loadInitialRecommendations, getRecommendations } from '@/se
 import { playSong, stopAudio, togglePlayPause } from '@/services/AudioService';
 import { Audio } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
-
-interface Song {
-  id: number;
-  track_id: number;
-  album_image: string;
-  artist_name: string;
-  audio_url: string;
-  track_title: string;
-}
+import { Song } from '@/types/Song';
 
 export const useSongFeed = () => {
   const [songFeed, setSongFeed] = useState<Song[]>([]); // Default to empty array

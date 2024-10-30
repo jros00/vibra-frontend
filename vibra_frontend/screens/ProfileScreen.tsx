@@ -1,11 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, Image } from 'react-native';
+import { View } from '@/components/Themed';
+import { useUser } from '@/hooks/useUser';
 
 const ProfileScreen = () => {
+  const { profile } = useUser();
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>Your Name</Text>
-      <Text style={styles.bio}>This is your biography</Text>
+      <Image
+        source={{ uri: profile?.profile_picture }}
+        style={styles.image}
+      />
+      <Text style={styles.name}>{profile?.username}</Text>
+      <Text style={styles.bio}>{profile?.biography}</Text>
     </View>
   );
 };
@@ -16,13 +23,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  image: {
+    width: 120,  // Adjust size as desired
+    height: 120, // Adjust size as desired
+    borderRadius: 60, // Half of the width/height to make it round
+    marginBottom: 20,
+  },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#fff',
   },
   bio: {
     fontSize: 16,
     marginTop: 10,
+    color: '#fff',
   },
 });
 

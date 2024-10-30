@@ -1,9 +1,10 @@
 import { Participant } from "./Participant";
+import { Message } from "./Message";
 
 export interface Chat {
     id: number;
+    group_picture: string;
     group_name: string;  // Add the group_name field here
     participants: Participant[];
-    last_message: string;
-    last_message_timestamp: string;
-  }
+    latest_message: Message;
+}

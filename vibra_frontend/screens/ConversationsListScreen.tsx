@@ -1,27 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Text, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useTheme } from '@react-navigation/native';
 import config from '../config.json';
 import { Chat } from '@/types/Chat';
 import ChatItem from '@/components/ConversationItem';
 
-
-// Define the param list for the navigation stack
-type RootStackParamList = {
-  ChatList: undefined;
-  Chat: { chatId: number };
-};
-
-// Define the type for the navigation prop in ChatList
-type ConversationsListNavigationProp = StackNavigationProp<RootStackParamList, 'ChatList'>;
-
 const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const navigation = useNavigation<ConversationsListNavigationProp>();
+  const { colors } = useTheme();
 
   const getChats = async () => {
     const apiUrl = `http://${config.MY_IP}:8000/conversations/`;
@@ -40,11 +28,11 @@ const ChatList = () => {
   }, []);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Text style={[styles.text, { color: colors.text }]}>Loading...</Text>;
   }
 
   if (!chats.length) {
-    return <Text>No chats available</Text>;
+    return <Text style={[styles.text, { color: colors.text }]}>No chats available</Text>;
   }
 
   return (
@@ -52,11 +40,16 @@ const ChatList = () => {
       data={chats}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => <ChatItem chat={item} />}
+      contentContainerStyle={{ backgroundColor: colors.background }}
     />
   );
 };
 
 const styles = StyleSheet.create({
+  text: {
+    fontSize: 16,
+    padding: 10,
+  },
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
