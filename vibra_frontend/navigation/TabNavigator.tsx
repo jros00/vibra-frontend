@@ -5,7 +5,6 @@ import ForYouScreen from '../screens/ForYouScreen';
 import ChatNavigator from './ChatNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
-import { GradientView } from '../components/GradientView';
 
 const Tab = createBottomTabNavigator();
 

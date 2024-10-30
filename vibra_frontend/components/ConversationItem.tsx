@@ -24,13 +24,17 @@ const ConversationItem: React.FC<ConversationItemProps> = ({ chat }) => {
   return (
     <TouchableOpacity onPress={() => navigation.navigate('Chat', { chatId: chat.id, chatName: chat.group_name })}>
       <View style={styles.chatItem}>
-        <Image source={{ uri: 'https://example.com/default-profile.png' }} style={styles.profilePicture} />
-        <View>
+        <Image source={{ uri: chat.group_picture }} style={styles.profilePicture} />
+        <View style={styles.chatInfo}>
           <Text style={styles.name}>{chat.group_name}</Text>
           <Text style={styles.members}>Chat with {chat.participants.map(p => p.username).join(', ')}</Text>
-          <Text style={styles.lastMessage}>{chat.last_message}</Text>
+          <Text style={styles.lastMessage}>
+            {chat.latest_message.content.length > 50
+            ? `${chat.latest_message.content.slice(0, 50)}...`
+            : chat.latest_message.content}
+          </Text>
         </View>
-        <Text style={styles.timestamp}>{new Date(chat.last_message_timestamp).toLocaleTimeString()}</Text>
+        <Text style={styles.timestamp}>{new Date(chat.latest_message.timestamp).toLocaleTimeString()}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -40,9 +44,13 @@ const styles = StyleSheet.create({
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
+    padding: 20,
+    borderBottomWidth: 5,
     borderBottomColor: '#ccc',
+  },
+  chatInfo: {
+    flex: 1, 
+    flexDirection: 'column',
   },
   profilePicture: {
     width: 50,
