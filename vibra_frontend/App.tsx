@@ -6,12 +6,22 @@ import { useFonts } from 'expo-font';
 import AppNavigator from './navigation/AppNavigator';
 import './axiosSetup'; // Import the Axios setup to initialize interceptors
 import { UserProvider } from '@/contexts/userContext';
+import colors from './constants/Colors';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs(true);
 
 
 SplashScreen.preventAutoHideAsync();
 
 const App = () => {
   const colorScheme = useColorScheme();
+  const customTheme = {
+    ...((colorScheme === 'dark' ? DarkTheme : DefaultTheme)),
+    colors: {
+      ...((colorScheme === 'dark' ? colors.dark : colors.light)),  // Use your theme's colors based on the color scheme
+    },
+  };
 
   // Load fonts using `useFonts` from `expo-font`
   const [fontsLoaded] = useFonts({
@@ -32,7 +42,7 @@ const App = () => {
 
   return (
     <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
-      <NavigationContainer theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <NavigationContainer theme={customTheme}>
         <UserProvider>
           <AppNavigator/>
         </UserProvider>

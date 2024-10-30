@@ -13,7 +13,7 @@ import { useUser } from '../hooks/useUser';
 // Define the param list for the stack navigator
 type RootStackParamList = {
   ChatList: undefined;
-  Chat: { chatId: number };
+  Chat: { chatId: number, chatName: string };
   SongDetail: { selectedMessage: Message; songMessages: Message[] };
 };
 

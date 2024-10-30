@@ -5,6 +5,7 @@ import ForYouScreen from '../screens/ForYouScreen';
 import ChatNavigator from './ChatNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
+import { GradientView } from '../components/GradientView';
 
 const Tab = createBottomTabNavigator();
 
@@ -29,8 +30,13 @@ const TabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name={iconName} size={size} color={color} />
           ),
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
+          tabBarActiveTintColor: '#514C92',
+          tabBarInactiveTintColor: '#9C96E3',
+          tabBarStyle: {
+            backgroundColor: 'transparent',  
+            //position: 'absolute',            
+            borderTopWidth: 0,               
+          },
           headerShown: false,
         };
       }}
