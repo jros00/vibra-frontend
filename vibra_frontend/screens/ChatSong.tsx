@@ -1,16 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import { FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, ViewToken, LayoutChangeEvent } from 'react-native';
+import { useRoute, useNavigation, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import SongCard from '@/components/SongCard';
 import NowPlayingBar from '@/components/NowPlayingBar';
 import { stopAudio, playSong } from '@/services/AudioService';
+import { Message } from '@/types/Message';
 
 const { height } = Dimensions.get('window');
 
+const getItemLayout = (data: ArrayLike<any> | null | undefined, index: number) => ({
+  length: height,
+  offset: height * index,
+  index,
+});
+
 const SongDetail = () => {
-  const route = useRoute();
+  const route = useRoute<RouteProp<{ params: { selectedMessage: any; songMessages: any[] } }, 'params'>>();
   const navigation = useNavigation();
   const { selectedMessage, songMessages } = route.params; // Only load songs from the chat
 
@@ -18,9 +25,20 @@ const SongDetail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [cardHeight, setCardHeight] = useState(height); // Set card height to screen height
   const soundRef = useRef(null);
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList<any>>(null);
 
-  const handlePlaySong = (audioUrl) => {
+  const handleScrollToIndexFailed = (info: {
+    index: number;
+    highestMeasuredFrameIndex: number;
+    averageItemLength: number;
+  }) => {
+    console.warn(`Scroll to index failed: ${info.index}`);
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
+    }
+  };
+
+  const handlePlaySong = (audioUrl: string) => {
     playSong(audioUrl, soundRef, setIsPlaying);
   };
 
@@ -34,7 +52,7 @@ const SongDetail = () => {
   };
 
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }) => {
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       if (viewableItems?.length > 0) {
         const inFocusSong = viewableItems[0].item.track;
         if (inFocusSong.track_id !== currentTrack.track_id) {
@@ -46,7 +64,7 @@ const SongDetail = () => {
     [currentTrack, handlePlaySong]
   );
 
-  const onCardLayout = (event) => {
+  const onCardLayout = (event: LayoutChangeEvent) => {
     setCardHeight(event.nativeEvent.layout.height);
   };
 
@@ -60,7 +78,7 @@ const SongDetail = () => {
 
   useEffect(() => {
     const selectedIndex = songMessages.findIndex(
-      (message) => message.track.track_id === selectedMessage.track.track_id
+      (message: Message) => message.track?.track_id === selectedMessage.track.track_id
     );
     if (flatListRef.current && selectedIndex !== -1) {
       flatListRef.current.scrollToIndex({ index: selectedIndex, animated: false });
@@ -98,6 +116,7 @@ const SongDetail = () => {
                 onTogglePlayPause={handleTogglePlayPause}
                 palette={item.track.album_image_palette}
                 dominantColor={item.track.album_image_dominant_color}
+                conversations={item.conversations || []}
               />
             </TouchableOpacity>
           )}
@@ -108,6 +127,8 @@ const SongDetail = () => {
           decelerationRate="fast"
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          getItemLayout={getItemLayout}
+          onScrollToIndexFailed={handleScrollToIndexFailed}
         />
 
         {currentTrack && <NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name} />}
