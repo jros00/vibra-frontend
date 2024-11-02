@@ -28,6 +28,7 @@ interface SongCardProps {
   onTogglePlayPause: () => void;
   palette?: Array<Array<number>>;
   dominantColor?: Array<number>;
+  imageMargin?: number;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -41,7 +42,8 @@ const SongCard: React.FC<SongCardProps> = ({
   isPlaying,
   onTogglePlayPause,
   palette = [],
-  dominantColor = [0, 0, 0]
+  dominantColor = [0, 0, 0],
+  imageMargin = 30
 }) => {
   // Convert the dominant color and palette to hex
   const dominantColorHex = rgbToHex(dominantColor);
@@ -51,8 +53,8 @@ const SongCard: React.FC<SongCardProps> = ({
   const gradientColors = [dominantColorHex, ...paletteHex];
 
   // If fewer than two colors, add a fallback color
-  if (gradientColors.length < 2) {
-    gradientColors.push('#ffffff'); // Adding white as a fallback
+  if (gradientColors.length < 2 || palette.length === 0) {
+    gradientColors.splice(0, gradientColors.length, 'transparent'); 
   }
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -74,7 +76,7 @@ const SongCard: React.FC<SongCardProps> = ({
   return (
     <TouchableOpacity onPress={handlePlayPause} style={styles.cardContainer}>
       <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
-        <Image source={image} style={styles.image} resizeMode="cover" />
+        <Image source={image} style={[styles.image, {marginTop: imageMargin}]} resizeMode="cover" />
 
         {/* Play/Pause Button Overlay with Animated Visibility */}
         <Animated.View style={[styles.playPauseButton, { opacity: fadeAnim }]}>
@@ -118,7 +120,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   image: {
-    marginTop: 30,
     opacity: 1,
     width: '100%',
     height: '60%',
