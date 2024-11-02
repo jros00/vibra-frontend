@@ -12,17 +12,20 @@ const { height } = Dimensions.get('window');
 const SongDetail = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { selectedMessage, songMessages } = route.params; // Only load songs from the chat
+  const { selectedMessage, songMessages } = route.params;
 
   const [currentTrack, setCurrentTrack] = useState(selectedMessage.track);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [cardHeight, setCardHeight] = useState(height); // Set card height to screen height
+  const [cardHeight, setCardHeight] = useState(height);
   const soundRef = useRef(null);
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList<Message>>(null);
+  const isScrollingRef = useRef(false);
 
   const handlePlaySong = (audioUrl) => {
-    playSong(audioUrl, soundRef, setIsPlaying);
+    stopAudio(soundRef); // Stop previous audio
+    playSong(audioUrl, soundRef, setIsPlaying); // Start new audio
   };
+  
 
   const handleTogglePlayPause = () => {
     if (isPlaying) {
@@ -33,39 +36,51 @@ const SongDetail = () => {
     }
   };
 
+
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }) => {
+    ({ viewableItems }: {viewableItems: any}) => {
+      if (isScrollingRef.current) {
+        // Ignore updates during initial scroll
+        isScrollingRef.current = false;
+        return;
+      }
       if (viewableItems?.length > 0) {
         const inFocusSong = viewableItems[0].item.track;
         if (inFocusSong.track_id !== currentTrack.track_id) {
           setCurrentTrack(inFocusSong);
-          handlePlaySong(inFocusSong.audio_url);
+          // Do not call handlePlaySong here
         }
       }
     },
-    [currentTrack, handlePlaySong]
+    [currentTrack]
   );
+  
 
-  const onCardLayout = (event) => {
+  const onCardLayout = (event: { nativeEvent: { layout: { height: React.SetStateAction<number>; }; }; }) => {
     setCardHeight(event.nativeEvent.layout.height);
   };
 
+
   useEffect(() => {
     handlePlaySong(currentTrack.audio_url);
-
+  
     return () => {
       stopAudio(soundRef);
     };
-  }, [currentTrack]);
+  }, [currentTrack]);  
+
 
   useEffect(() => {
     const selectedIndex = songMessages.findIndex(
-      (message) => message.track.track_id === selectedMessage.track.track_id
+      (message: { track: { track_id: any; }; }) => message.track.track_id === selectedMessage.track.track_id
     );
     if (flatListRef.current && selectedIndex !== -1) {
+      isScrollingRef.current = true;
       flatListRef.current.scrollToIndex({ index: selectedIndex, animated: false });
     }
   }, [selectedMessage, songMessages]);
+
+
 
   // Use useFocusEffect to stop the audio when navigating back to the chat
   useFocusEffect(
@@ -97,8 +112,8 @@ const SongDetail = () => {
                 isPlaying={currentTrack.track_id === item.track.track_id && isPlaying}
                 onTogglePlayPause={handleTogglePlayPause}
                 palette={item.track.album_image_palette}
-                dominantColor={item.track.album_image_dominant_color}
-              />
+                dominantColor={item.track.album_image_dominant_color} conversations={[]}
+                />
             </TouchableOpacity>
           )}
           pagingEnabled
@@ -108,6 +123,12 @@ const SongDetail = () => {
           decelerationRate="fast"
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          onScrollToIndexFailed={(info) => {
+            const wait = new Promise((resolve) => setTimeout(resolve, 500));
+            wait.then(() => {
+              flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
+            });
+          }}
         />
 
         {currentTrack && <NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name} />}
