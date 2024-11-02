@@ -8,7 +8,9 @@ import NowPlayingBar from '@/components/NowPlayingBar';
 import { stopAudio, playSong } from '@/services/AudioService';
 import { Message } from '@/types/Message';
 import LikedByItem from '@/components/LikedByItem';
-import { View } from '@/components/Themed';
+import { View, Text } from '@/components/Themed';
+import { GradientView } from '@/components/GradientView';
+import { Audio } from 'expo-av';
 
 const { height } = Dimensions.get('window');
 
@@ -54,20 +56,31 @@ const SongDetail = () => {
   const flatListRef = useRef<FlatList<Message>>(null);
   const isScrollingRef = useRef(false);
 
-  const handlePlaySong = (audioUrl) => {
+  const handlePlaySong = (audioUrl: string) => {
     stopAudio(soundRef); // Stop previous audio
     playSong(audioUrl, soundRef, setIsPlaying); // Start new audio
   };
   
 
   const handleTogglePlayPause = () => {
-    if (isPlaying) {
-      stopAudio(soundRef);
-      setIsPlaying(false);
-    } else {
-      handlePlaySong(currentTrack.audio_url);
+    togglePlayPause(soundRef, isPlaying, setIsPlaying);
+  };
+
+  const togglePlayPause = async (
+    soundRef: React.MutableRefObject<Audio.Sound | null>,
+    isPlaying: boolean,
+    setIsPlaying: (isPlaying: boolean) => void
+  ) => {
+    if (soundRef.current) {
+      if (isPlaying) {
+        await soundRef.current.pauseAsync();
+      } else {
+        await soundRef.current.playAsync();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
+  
 
 
   const onViewableItemsChanged = useCallback(
@@ -147,13 +160,14 @@ const SongDetail = () => {
                   track_id={item.track.track_id}
                   isPlaying={currentTrack.track_id === item.track.track_id && isPlaying}
                   onTogglePlayPause={handleTogglePlayPause}
-                  conversations={item.conversations || []}
+                  sender={item.sender.username}
+                  conversations={[]}
                   imageMargin={130}
                 />
               </TouchableOpacity>
             </View>
           )}
-          pagingEnabled
+          pagingEnabled={true}
           showsVerticalScrollIndicator={false}
           snapToAlignment="start"
           snapToInterval={cardHeight}
@@ -167,9 +181,9 @@ const SongDetail = () => {
             });
           }}
         />
-        {currentTrack && <NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name} />}
+        {currentTrack && <View style={styles.playingBar}><NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name}/></View> }
       </SafeAreaView>
-    </LinearGradient>
+    </GradientView>
   );
 };
 
@@ -190,12 +204,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
+  playingBar: {
+    marginBottom: 10,
+  },
   backButton: {
     position: 'absolute',
-    top: 40,
-    left: 20,
+    top: 65,
+    left: 10,
     zIndex: 1,
   },
+  arrowBack: {
+    marginTop: 20
+  }
 });
 
 export default SongDetail;

@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PreferenceButton from '@/components/PreferenceButton';
 import ShareButton from '@/components/ShareButton';
+import { Text, View } from './Themed';
 
 // Utility function to convert RGB array to hex color string
 const rgbToHex = (rgb: number[] = []): string => {
@@ -29,6 +30,8 @@ interface SongCardProps {
   palette?: Array<Array<number>>;
   dominantColor?: Array<number>;
   imageMargin?: number;
+  sender?: string;
+
 }
 
 const { width, height } = Dimensions.get('window');
@@ -43,7 +46,8 @@ const SongCard: React.FC<SongCardProps> = ({
   onTogglePlayPause,
   palette = [],
   dominantColor = [0, 0, 0],
-  imageMargin = 30
+  imageMargin = 30,
+  sender = null,
 }) => {
   // Convert the dominant color and palette to hex
   const dominantColorHex = rgbToHex(dominantColor);
@@ -77,6 +81,14 @@ const SongCard: React.FC<SongCardProps> = ({
     <TouchableOpacity onPress={handlePlayPause} style={styles.cardContainer}>
       <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
         <Image source={image} style={[styles.image, {marginTop: imageMargin}]} resizeMode="cover" />
+
+        {/* Conditional rendering for sender */}
+        {sender && (
+          <View style={styles.textContainer}><Text style={styles.text}>Recommended by <Text style={styles.senderText}>{sender}</Text></Text></View>
+        )}
+
+
+        <Image source={image} style={styles.image} resizeMode="cover" />
 
         {/* Play/Pause Button Overlay with Animated Visibility */}
         <Animated.View style={[styles.playPauseButton, { opacity: fadeAnim }]}>
@@ -118,6 +130,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
+  },
+  senderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#01161e',
+    fontStyle: 'italic', // Makes the text italic (cursive-like)
+  },
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#01161e',
+  },
+  textContainer: {
+    borderRadius: 100,
+    backgroundColor: '#00f5d4',
+    paddingLeft: 20,
+    padding: 10,
+    margin: 10
   },
   image: {
     opacity: 1,
