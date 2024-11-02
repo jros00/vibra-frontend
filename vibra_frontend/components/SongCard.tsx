@@ -29,7 +29,9 @@ interface SongCardProps {
   onTogglePlayPause: () => void;
   palette?: Array<Array<number>>;
   dominantColor?: Array<number>;
+  imageMargin?: number;
   sender?: string;
+
 }
 
 const { width, height } = Dimensions.get('window');
@@ -44,7 +46,8 @@ const SongCard: React.FC<SongCardProps> = ({
   onTogglePlayPause,
   palette = [],
   dominantColor = [0, 0, 0],
-  sender = null
+  imageMargin = 30,
+  sender = null,
 }) => {
   // Convert the dominant color and palette to hex
   const dominantColorHex = rgbToHex(dominantColor);
@@ -54,8 +57,8 @@ const SongCard: React.FC<SongCardProps> = ({
   const gradientColors = [dominantColorHex, ...paletteHex];
 
   // If fewer than two colors, add a fallback color
-  if (gradientColors.length < 2) {
-    gradientColors.push('#ffffff'); // Adding white as a fallback
+  if (gradientColors.length < 2 || palette.length === 0) {
+    gradientColors.splice(0, gradientColors.length, 'transparent'); 
   }
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -77,6 +80,7 @@ const SongCard: React.FC<SongCardProps> = ({
   return (
     <TouchableOpacity onPress={handlePlayPause} style={styles.cardContainer}>
       <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
+        <Image source={image} style={[styles.image, {marginTop: imageMargin}]} resizeMode="cover" />
 
         {/* Conditional rendering for sender */}
         {sender && (
@@ -146,7 +150,6 @@ const styles = StyleSheet.create({
     margin: 10
   },
   image: {
-    marginTop: 30,
     opacity: 1,
     width: '100%',
     height: '60%',
