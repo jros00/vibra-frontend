@@ -21,13 +21,12 @@ const getItemLayout = (data: ArrayLike<any> | null | undefined, index: number) =
 const SongDetail = () => {
   const route = useRoute<RouteProp<{ params: { selectedMessage: any; songMessages: any[] } }, 'params'>>();
   const navigation = useNavigation();
-  const { selectedMessage, songMessages } = route.params; // Only load songs from the chat
+  const { selectedMessage, songMessages } = route.params;
 
   const [currentTrack, setCurrentTrack] = useState(selectedMessage.track);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [cardHeight, setCardHeight] = useState(height); // Set card height to screen height
+  const [cardHeight, setCardHeight] = useState(height);
   const soundRef = useRef(null);
-  const flatListRef = useRef<FlatList<any>>(null);
   const [gradientColors, setGradientColors] = useState<string[]>(['transparent']);
 
   // Utility function to convert RGB array to hex color string
@@ -52,20 +51,14 @@ const SongDetail = () => {
     }
   }, [currentTrack]);
 
-  const handleScrollToIndexFailed = (info: {
-    index: number;
-    highestMeasuredFrameIndex: number;
-    averageItemLength: number;
-  }) => {
-    console.warn(`Scroll to index failed: ${info.index}`);
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
-    }
-  };
+  const flatListRef = useRef<FlatList<Message>>(null);
+  const isScrollingRef = useRef(false);
 
-  const handlePlaySong = (audioUrl: string) => {
-    playSong(audioUrl, soundRef, setIsPlaying);
+  const handlePlaySong = (audioUrl) => {
+    stopAudio(soundRef); // Stop previous audio
+    playSong(audioUrl, soundRef, setIsPlaying); // Start new audio
   };
+  
 
   const handleTogglePlayPause = () => {
     if (isPlaying) {
@@ -76,39 +69,51 @@ const SongDetail = () => {
     }
   };
 
+
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    ({ viewableItems }: {viewableItems: any}) => {
+      if (isScrollingRef.current) {
+        // Ignore updates during initial scroll
+        isScrollingRef.current = false;
+        return;
+      }
       if (viewableItems?.length > 0) {
         const inFocusSong = viewableItems[0].item.track;
         if (inFocusSong.track_id !== currentTrack.track_id) {
           setCurrentTrack(inFocusSong);
-          handlePlaySong(inFocusSong.audio_url);
+          // Do not call handlePlaySong here
         }
       }
     },
-    [currentTrack, handlePlaySong]
+    [currentTrack]
   );
+  
 
-  const onCardLayout = (event: LayoutChangeEvent) => {
+  const onCardLayout = (event: { nativeEvent: { layout: { height: React.SetStateAction<number>; }; }; }) => {
     setCardHeight(event.nativeEvent.layout.height);
   };
 
+
   useEffect(() => {
     handlePlaySong(currentTrack.audio_url);
-
+  
     return () => {
       stopAudio(soundRef);
     };
-  }, [currentTrack]);
+  }, [currentTrack]);  
+
 
   useEffect(() => {
     const selectedIndex = songMessages.findIndex(
-      (message: Message) => message.track?.track_id === selectedMessage.track.track_id
+      (message: { track: { track_id: any; }; }) => message.track.track_id === selectedMessage.track.track_id
     );
     if (flatListRef.current && selectedIndex !== -1) {
+      isScrollingRef.current = true;
       flatListRef.current.scrollToIndex({ index: selectedIndex, animated: false });
     }
   }, [selectedMessage, songMessages]);
+
+
 
   // Use useFocusEffect to stop the audio when navigating back to the chat
   useFocusEffect(
@@ -155,8 +160,12 @@ const SongDetail = () => {
           decelerationRate="fast"
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
-          getItemLayout={getItemLayout}
-          onScrollToIndexFailed={handleScrollToIndexFailed}
+          onScrollToIndexFailed={(info) => {
+            const wait = new Promise((resolve) => setTimeout(resolve, 500));
+            wait.then(() => {
+              flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
+            });
+          }}
         />
         {currentTrack && <NowPlayingBar title={currentTrack.track_title} artist={currentTrack.artist_name} />}
       </SafeAreaView>
