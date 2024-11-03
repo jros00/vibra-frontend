@@ -7,26 +7,30 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { stopAudio } from '@/services/AudioService';
 import { Song } from '@/types/Song';
+import { useUser } from '@/hooks/useUser';
 
-const user_array = [
-  'Johannes',
-  'Emilia',
-  'Oscar',
-  'Hugo',
-  'Laura'
-]
 
-function getRandomValue<T>(array: T[]): any {
-  if (array.length === 0) return undefined; // Handle empty array case
-  const randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
+function getRandomSender<T>(currentUsername: string): any {
+  let user_array = [
+    'Johannes',
+    'Emilia',
+    'Oscar',
+    'Hugo',
+    'Laura'
+  ]
+  let index = user_array.indexOf(currentUsername);
+  if (index !== -1) {
+    user_array.splice(index, 1);
+  }
+  const randomIndex = Math.floor(Math.random() * user_array.length);
+  return user_array[randomIndex];
 }
 
 // Function to determine if the random selection should be executed (1/3 chance)
-function pickSongSender(): any {
+function pickSongSender(currentUsername: string): any {
   const pickUser = Math.random() < 1 / 3;
   if (pickUser === true) {
-    const user_name = getRandomValue(user_array)
+    const user_name = getRandomSender(currentUsername)
     return user_name
   }
   else {
@@ -50,12 +54,18 @@ export default function ForYouScreen() {
     loadMoreSongs,
   } = useSongFeed();
 
+  const { profile } = useUser();
+  let currentUsername = profile?.username;
+  if (typeof currentUsername !== 'string') {
+    currentUsername = ''
+  }
+
   // Add `sender` property to each song in the `songFeed` on initial load
   const [processedSongFeed, setProcessedSongFeed] = useState<Song[]>([]);
 
   useEffect(() => {
     const updatedFeed = songFeed.map((song) => {
-      const sender = pickSongSender()
+      const sender = pickSongSender(currentUsername)
       return { ...song, sender };
     });
     setProcessedSongFeed(updatedFeed);
@@ -70,6 +80,7 @@ export default function ForYouScreen() {
         if (viewableItems?.length > 0) {
           const song = viewableItems[0].item;
           console.info("In focus:", song.track_title);
+          console.log(currentUsername);
           setInFocusSong(song); // Update the focused song
         }
       },
