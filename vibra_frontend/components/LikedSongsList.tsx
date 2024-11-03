@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
-import { useThemeColor } from '@/components/Themed'; // Adjust the import path as necessary
+import { View, FlatList, StyleSheet } from 'react-native';
+import { useThemeColor } from '@/components/Themed';
+import TrackItem from './TrackItem';
 
 const sampleTracks = Array.from({ length: 15 }, (_, index) => ({
   id: index.toString(),
@@ -10,8 +11,7 @@ const sampleTracks = Array.from({ length: 15 }, (_, index) => ({
 }));
 
 const LikedSongsList = () => {
-  // Get background color from the theme
-  const backgroundColor = useThemeColor({}, 'background'); // Adjust based on your theme key
+  const backgroundColor = useThemeColor({}, 'background');
 
   return (
     <View style={[styles.listContainer, { backgroundColor }]}>
@@ -19,13 +19,11 @@ const LikedSongsList = () => {
         data={sampleTracks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.trackItem}>
-            <Image source={{ uri: item.coverArt }} style={styles.coverArt} />
-            <View style={styles.trackInfo}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.artist}>{item.artist}</Text>
-            </View>
-          </View>
+          <TrackItem
+            title={item.title}
+            artist={item.artist}
+            coverArt={item.coverArt}
+          />
         )}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
@@ -36,31 +34,6 @@ const LikedSongsList = () => {
 const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 20,
-    // Background color will be set dynamically
-  },
-  trackItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    
-  },
-  coverArt: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 15,
-  },
-  trackInfo: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  artist: {
-    fontSize: 14,
-    color: '#d3d3d3', // Light gray for artist name
   },
 });
 

@@ -1,66 +1,54 @@
+// ProfileScreen.tsx
+
 import React, { useState } from 'react';
-import { Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { View } from '@/components/Themed';
-import { FontAwesome } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { useThemeColor } from '@/components/Themed';
 import { useUser } from '@/hooks/useUser';
 import LikedSongsList from '@/components/LikedSongsList';
-import { useThemeColor } from '@/components/Themed';
+import { FontAwesome } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
   const { profile } = useUser();
   const backgroundColor = useThemeColor({}, 'background');
-  
-  const [isEditingBio, setIsEditingBio] = useState(false);
-  const [bio, setBio] = useState(profile?.biography || "");
+  const [isEditing, setIsEditing] = useState(false);
+  const [bio, setBio] = useState(profile?.biography || '');
 
-  const handleBioSave = () => {
-    setIsEditingBio(false);
-    profile.biography = bio;
+  const handleEditToggle = () => setIsEditing(!isEditing);
+
+  const handleSave = () => {
+    // Add your save logic here
+    setIsEditing(false);
   };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor }]}>
       <View style={styles.profileSection}>
-        <Image
-          source={{ uri: profile?.profile_picture }}
-          style={styles.image}
-        />
+        <Image source={{ uri: profile?.profile_picture }} style={styles.image} />
         <Text style={styles.name}>{profile?.username}</Text>
 
-        <View style={styles.bioContainer}>
-          {isEditingBio ? (
-            <TextInput
-              style={styles.bioInput}
-              value={bio}
-              onChangeText={setBio}
-              autoFocus
-              multiline
-            />
-          ) : (
-            <Text style={styles.bio}>{bio}</Text>
-          )}
-        </View>
+        {isEditing ? (
+          <TextInput
+            style={styles.bioInput}
+            value={bio}
+            onChangeText={setBio}
+            multiline
+          />
+        ) : (
+          <Text style={styles.bio}>{bio}</Text>
+        )}
 
-        <View style={styles.buttonContainer}>
-          {isEditingBio ? (
-            <TouchableOpacity onPress={handleBioSave} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={() => setIsEditingBio(true)} style={styles.editButton}>
-              <FontAwesome name="pencil" size={16} color="#fff" />
-              <Text style={styles.editButtonText}>Edit bio</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+        <TouchableOpacity style={styles.editButton} onPress={isEditing ? handleSave : handleEditToggle}>
+          <FontAwesome name={isEditing ? "save" : "pencil"} size={16} color="#32CD32" />
+          <Text style={styles.editButtonText}>{isEditing ? " Save" : " Edit bio"}</Text>
+        </TouchableOpacity>
 
-      <View style={styles.tasteProfileBadge}>
-        <View style={styles.greenCircle} />
-        <Text style={styles.tasteProfileText}>
-          <Text style={styles.boldText}>Taste profile: </Text>
-          House Mouse
-        </Text>
+        {/* Taste Profile Badge */}
+        <View style={styles.tasteProfileBadge}>
+          <View style={styles.greenCircle} />
+          <Text style={styles.tasteProfileText}>
+            <Text style={styles.boldText}>Taste profile:</Text> House Mouse
+          </Text>
+        </View>
       </View>
 
       <Text style={styles.header}>Liked Songs</Text>
@@ -75,69 +63,53 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    paddingVertical: 40,
-    marginTop: 40,
-    paddingBottom: 10,
+    paddingVertical: 20,
+    marginTop: 60,
   },
   image: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    width: '80%',
-    textAlign: 'center',
-  },
-  bioContainer: {
-    alignItems: 'center',
-    width: '80%',
-    marginTop: 10,
   },
   bio: {
     fontSize: 16,
+    marginTop: 10,
     color: '#fff',
+    width: '66%',
     textAlign: 'center',
   },
   bioInput: {
     fontSize: 16,
     color: '#fff',
+    width: '66%',
     textAlign: 'center',
-    backgroundColor: '#444',
-    padding: 5,
+    backgroundColor: '#333',
+    padding: 8,
     borderRadius: 5,
-  },
-  buttonContainer: {
     marginTop: 10,
-    alignItems: 'center',
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: '#32CD32', // Outline color
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 20,
-    borderWidth: 1, // Adds the outline
-    borderColor: '#fff', // Outline color
+    width: '25%', // Match width to the bio text
+    justifyContent: 'center', // Center the button content
   },
   editButtonText: {
-    color: '#fff',
     fontSize: 14,
+    color: '#32CD32', // Match bio text color
     marginLeft: 5,
-  },
-  saveButton: {
-    backgroundColor: '#32CD32',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   tasteProfileBadge: {
     flexDirection: 'row',
@@ -147,7 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingVertical: 8,
     paddingHorizontal: 15,
-    marginVertical: 10,
+    marginVertical: 15,
   },
   greenCircle: {
     width: 12,
