@@ -1,7 +1,7 @@
 // ProfileScreen.tsx
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useThemeColor } from '@/components/Themed';
 import { useUser } from '@/hooks/useUser';
 import LikedSongsList from '@/components/LikedSongsList';
@@ -9,6 +9,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
   const { profile } = useUser();
+  console.log(profile)
   const backgroundColor = useThemeColor({}, 'background');
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState(profile?.biography || '');
@@ -21,7 +22,7 @@ const ProfileScreen = () => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.profileSection}>
         <Image source={{ uri: profile?.profile_picture }} style={styles.image} />
         <Text style={styles.name}>{profile?.username}</Text>
@@ -43,17 +44,17 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         {/* Taste Profile Badge */}
-        <View style={styles.tasteProfileBadge}>
-          <View style={styles.greenCircle} />
+        <View style={[styles.tasteProfileBadge, { backgroundColor: '#333' }]}>
+          <View style={[styles.colorCircle, { backgroundColor: profile?.taste_profile_color || '#32CD32' }]} />
           <Text style={styles.tasteProfileText}>
-            <Text style={styles.boldText}>Taste profile:</Text> House Mouse
+            <Text style={styles.boldText}>Taste profile:</Text> {profile?.taste_profile_title}
           </Text>
         </View>
       </View>
 
       <Text style={styles.header}>Liked Songs</Text>
       <LikedSongsList />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -63,8 +64,8 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    paddingVertical: 20,
-    marginTop: 60,
+    paddingVertical: 0,
+    marginTop: 80,
   },
   image: {
     width: 120,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginVertical: 15,
   },
-  greenCircle: {
+  colorCircle: {
     width: 12,
     height: 12,
     borderRadius: 6,

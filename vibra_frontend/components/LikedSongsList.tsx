@@ -1,40 +1,36 @@
 import React from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/components/Themed';
 import TrackItem from './TrackItem';
-
-const sampleTracks = Array.from({ length: 15 }, (_, index) => ({
-  id: index.toString(),
-  title: `Sample Song ${index + 1}`,
-  artist: `Artist ${index + 1}`,
-  coverArt: 'https://via.placeholder.com/60',
-}));
+import { useUser } from '@/hooks/useUser';
 
 const LikedSongsList = () => {
-  const backgroundColor = useThemeColor({}, 'background');
+    const { profile } = useUser();
+    const songs = profile?.liked_tracks;
+    const backgroundColor = useThemeColor({}, 'background');
 
-  return (
-    <View style={[styles.listContainer, { backgroundColor }]}>
-      <FlatList
-        data={sampleTracks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TrackItem
-            title={item.title}
-            artist={item.artist}
-            coverArt={item.coverArt}
-          />
-        )}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
-  );
+    return (
+        <FlatList
+            data={songs}
+            keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
+            renderItem={({ item }) => (
+                <TrackItem
+                    title={item.track_title}
+                    artist={item.artist_name}
+                    coverArt={item.album_image}
+                />
+            )}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            style={[styles.list, { backgroundColor }]} // Set background color directly
+        />
+    );
 };
 
 const styles = StyleSheet.create({
-  listContainer: {
-    paddingHorizontal: 20,
-  },
+    list: {
+        flex: 1, // Ensures FlatList takes up the remaining available space
+        paddingHorizontal: 20,
+    },
 });
 
 export default LikedSongsList;
