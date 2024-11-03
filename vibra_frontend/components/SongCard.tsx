@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, Dimensions, Animated, View as RNView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -29,7 +29,7 @@ interface SongCardProps {
   onTogglePlayPause: () => void;
   palette?: Array<Array<number>>;
   dominantColor?: Array<number>;
-  sender?: string;
+  sender?: any;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -46,6 +46,19 @@ const SongCard: React.FC<SongCardProps> = ({
   dominantColor = [0, 0, 0],
   sender = null
 }) => {
+  
+  // State to track active preference
+  const [activePreference, setActivePreference] = useState<'like' | 'dislike' | null>(null);
+
+  // Handle preference change
+  const handlePreferenceChange = (preference: 'like' | 'dislike') => {
+    if (activePreference === preference) {
+      setActivePreference(null); // Deselect if the same button is pressed again
+    } else {
+      setActivePreference(preference); // Set the new active preference
+    }
+  };
+
   // Convert the dominant color and palette to hex
   const dominantColorHex = rgbToHex(dominantColor);
   const paletteHex = palette.map((rgbArray) => rgbToHex(rgbArray));
@@ -103,8 +116,8 @@ const SongCard: React.FC<SongCardProps> = ({
           style={styles.buttonGradient}
         >
           <RNView style={styles.buttonContainer}>
-            <PreferenceButton preference="like" track_id={track_id} />
-            <PreferenceButton preference="dislike" track_id={track_id} />
+            <PreferenceButton preference="like" track_id={track_id} activePreference={activePreference} onPress={() => handlePreferenceChange('like')} />
+            <PreferenceButton preference="dislike" track_id={track_id} activePreference={activePreference} onPress={() => handlePreferenceChange('dislike')} />
             <ShareButton track_id={track_id} conversations={conversations} />
           </RNView>
         </LinearGradient>
