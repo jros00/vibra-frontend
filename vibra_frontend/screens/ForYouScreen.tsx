@@ -8,6 +8,33 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { stopAudio } from '@/services/AudioService';
 import { Song } from '@/types/Song';
 
+const user_array = [
+  'Johannes',
+  'Emilia',
+  'Oscar',
+  'Hugo',
+  'Laura'
+]
+
+function getRandomValue<T>(array: T[]): any {
+  if (array.length === 0) return undefined; // Handle empty array case
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
+
+// Function to determine if the random selection should be executed (1/3 chance)
+function pickSongSender(): any {
+  const pickUser = Math.random() < 1 / 3;
+  if (pickUser === true) {
+    const user_name = getRandomValue(user_array)
+    return user_name
+  }
+  else {
+    return null
+  }
+}
+
+
 export default function ForYouScreen() {
   const {
     songFeed,
@@ -17,13 +44,22 @@ export default function ForYouScreen() {
     handlePlaySong,
     handleTogglePlayPause,
     setCurrentSong,
-    setRecommendations,
-    setSongFeed,
     cardHeight,
     setCardHeight,
     soundRef, // Destructure soundRef here
     loadMoreSongs,
   } = useSongFeed();
+
+  // Add `sender` property to each song in the `songFeed` on initial load
+  const [processedSongFeed, setProcessedSongFeed] = useState<Song[]>([]);
+
+  useEffect(() => {
+    const updatedFeed = songFeed.map((song) => {
+      const sender = pickSongSender()
+      return { ...song, sender };
+    });
+    setProcessedSongFeed(updatedFeed);
+  }, [songFeed]);
 
   const [inFocusSong, setInFocusSong] = useState<Song | null>(null);; // Track the currently focused song
   const playingRef = useRef(false); // Track if a song is currently playing or loading
@@ -88,23 +124,26 @@ export default function ForYouScreen() {
     <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.gradientBackground}>
       <SafeAreaView style={styles.container}>
         <FlatList
-          data={songFeed}
+          data={processedSongFeed}
           keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())} // Add index as fallback
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
-              <SongCard
-                image={{ uri: item.album_image }}
-                title={item.track_title}
-                description={item.artist_name}
-                track_id={item.track_id}
-                conversations={conversations}
-                isPlaying={isPlaying}
-                onTogglePlayPause={handleTogglePlayPause}
-                palette={item.album_image_palette}
-                dominantColor={item.album_image_dominant_color}
-              />
-            </TouchableOpacity> 
-          )}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
+                <SongCard
+                  image={{ uri: item.album_image }}
+                  title={item.track_title}
+                  description={item.artist_name}
+                  track_id={item.track_id}
+                  conversations={conversations}
+                  isPlaying={isPlaying}
+                  onTogglePlayPause={handleTogglePlayPause}
+                  palette={item.album_image_palette}
+                  dominantColor={item.album_image_dominant_color}
+                  sender={item.sender} // Pass the result of the function
+                />
+              </TouchableOpacity>
+            );
+          }}
           pagingEnabled={Platform.OS !== 'web'}
           showsVerticalScrollIndicator={false}
           snapToAlignment="start"
