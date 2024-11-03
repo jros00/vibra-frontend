@@ -7,6 +7,37 @@ import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { stopAudio } from '@/services/AudioService';
 import { Song } from '@/types/Song';
+import { useUser } from '@/hooks/useUser';
+
+
+function getRandomSender<T>(currentUsername: string): any {
+  let user_array = [
+    'Johannes',
+    'Emilia',
+    'Oscar',
+    'Hugo',
+    'Laura'
+  ]
+  let index = user_array.indexOf(currentUsername);
+  if (index !== -1) {
+    user_array.splice(index, 1);
+  }
+  const randomIndex = Math.floor(Math.random() * user_array.length);
+  return user_array[randomIndex];
+}
+
+// Function to determine if the random selection should be executed (1/3 chance)
+function pickSongSender(currentUsername: string): any {
+  const pickUser = Math.random() < 1 / 3;
+  if (pickUser === true) {
+    const user_name = getRandomSender(currentUsername)
+    return user_name
+  }
+  else {
+    return null
+  }
+}
+
 
 export default function ForYouScreen() {
   const {
@@ -17,13 +48,28 @@ export default function ForYouScreen() {
     handlePlaySong,
     handleTogglePlayPause,
     setCurrentSong,
-    setRecommendations,
-    setSongFeed,
     cardHeight,
     setCardHeight,
     soundRef, // Destructure soundRef here
     loadMoreSongs,
   } = useSongFeed();
+
+  const { profile } = useUser();
+  let currentUsername = profile?.username;
+  if (typeof currentUsername !== 'string') {
+    currentUsername = ''
+  }
+
+  // Add `sender` property to each song in the `songFeed` on initial load
+  const [processedSongFeed, setProcessedSongFeed] = useState<Song[]>([]);
+
+  useEffect(() => {
+    const updatedFeed = songFeed.map((song) => {
+      const sender = pickSongSender(currentUsername)
+      return { ...song, sender };
+    });
+    setProcessedSongFeed(updatedFeed);
+  }, [songFeed]);
 
   const [inFocusSong, setInFocusSong] = useState<Song | null>(null);; // Track the currently focused song
   const playingRef = useRef(false); // Track if a song is currently playing or loading
@@ -34,6 +80,7 @@ export default function ForYouScreen() {
         if (viewableItems?.length > 0) {
           const song = viewableItems[0].item;
           console.info("In focus:", song.track_title);
+          console.log(currentUsername);
           setInFocusSong(song); // Update the focused song
         }
       },
@@ -88,23 +135,26 @@ export default function ForYouScreen() {
     <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.gradientBackground}>
       <SafeAreaView style={styles.container}>
         <FlatList
-          data={songFeed}
+          data={processedSongFeed}
           keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())} // Add index as fallback
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
-              <SongCard
-                image={{ uri: item.album_image }}
-                title={item.track_title}
-                description={item.artist_name}
-                track_id={item.track_id}
-                conversations={conversations}
-                isPlaying={isPlaying}
-                onTogglePlayPause={handleTogglePlayPause}
-                palette={item.album_image_palette}
-                dominantColor={item.album_image_dominant_color}
-              />
-            </TouchableOpacity> 
-          )}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity onPress={handleTogglePlayPause} onLayout={onCardLayout}>
+                <SongCard
+                  image={{ uri: item.album_image }}
+                  title={item.track_title}
+                  description={item.artist_name}
+                  track_id={item.track_id}
+                  conversations={conversations}
+                  isPlaying={isPlaying}
+                  onTogglePlayPause={handleTogglePlayPause}
+                  palette={item.album_image_palette}
+                  dominantColor={item.album_image_dominant_color}
+                  sender={item.sender} // Pass the result of the function
+                />
+              </TouchableOpacity>
+            );
+          }}
           pagingEnabled={Platform.OS !== 'web'}
           showsVerticalScrollIndicator={false}
           snapToAlignment="start"

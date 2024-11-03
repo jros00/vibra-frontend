@@ -5,6 +5,7 @@ import { useTheme } from '@react-navigation/native';
 import config from '../config.json';
 import { Chat } from '@/types/Chat';
 import ChatItem from '@/components/ConversationItem';
+import { View } from '@/components/Themed';
 
 const ChatList = () => {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -36,12 +37,14 @@ const ChatList = () => {
   }
 
   return (
+    <View>
     <FlatList
       data={chats}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => <ChatItem chat={item} />}
       contentContainerStyle={{ backgroundColor: colors.background }}
     />
+    </View>
   );
 };
 

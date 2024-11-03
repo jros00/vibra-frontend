@@ -23,7 +23,7 @@ const ChatNavigator = () => {
         headerTintColor: '#fff',
       }}
     >
-      <Stack.Screen name="ChatList" component={ChatList} options={{ headerTitle: 'Messages' }} />
+      <Stack.Screen name="ChatList" component={ChatList} options={{ headerTitle: 'Conversations', headerLeft: () => null }} />
       <Stack.Screen 
         name="Chat" 
         component={Chat} 

@@ -1,4 +1,5 @@
 export interface Song {
+  sender: unknown;
   id: number;
   track_id: number;
   album_image: string;
