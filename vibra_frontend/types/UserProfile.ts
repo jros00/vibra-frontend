@@ -10,8 +10,6 @@ export interface UserProfile {
     followers: number;
     following: number;
     liked_tracks: Song[];
-    taste_profile_color: string;
-    taste_profile_title: string;
-
-    
+    taste_profile_color?: string;  // New field for taste profile color
+    taste_profile_title?: string;
 }
