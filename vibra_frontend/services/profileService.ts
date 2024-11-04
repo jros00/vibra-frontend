@@ -18,6 +18,8 @@ export const fetchUserProfile = async (userName: string): Promise<UserProfile | 
         liked_tracks: response.data.liked_tracks,
         followers: response.data.followers,
         following: response.data.following,
+        taste_profile_color: response.data.taste_profile_color,
+        taste_profile_title: response.data.taste_profile_title,
       };
     } else {
       Alert.alert('Error', 'Unable to fetch profile data');

@@ -30,6 +30,9 @@ export default function LoginScreen() {
 
     if (loginResponse) {
       const profileData = await fetchUserProfile(userName);
+      console.log(profileData?.username);
+      console.log(profileData?.taste_profile_color);
+      console.log(profileData?.taste_profile_title);
       if (profileData) {
         setProfile(profileData);
         navigation.navigate('Main');
