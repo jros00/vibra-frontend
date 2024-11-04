@@ -9,7 +9,6 @@ import { FontAwesome } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
   const { profile } = useUser();
-  console.log(profile)
   const backgroundColor = useThemeColor({}, 'background');
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState(profile?.biography || '');
@@ -17,7 +16,6 @@ const ProfileScreen = () => {
   const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleSave = () => {
-    // Add your save logic here
     setIsEditing(false);
   };
 
@@ -27,33 +25,54 @@ const ProfileScreen = () => {
         <Image source={{ uri: profile?.profile_picture }} style={styles.image} />
         <Text style={styles.name}>{profile?.username}</Text>
 
-        {isEditing ? (
-          <TextInput
-            style={styles.bioInput}
-            value={bio}
-            onChangeText={setBio}
-            multiline
-          />
-        ) : (
-          <Text style={styles.bio}>{bio}</Text>
-        )}
+        {/* Followers and Following Section Container */}
+        <View style={styles.followContainer}>
+          <View style={styles.followSection}>
+            <View style={styles.followItem}>
+              <Text style={styles.followCount}>482</Text>
+              <Text style={styles.followLabel}>Followers</Text>
+            </View>
+            <View style={styles.followItem}>
+              <Text style={styles.followCount}>248</Text>
+              <Text style={styles.followLabel}>Following</Text>
+            </View>
+          </View>
+        </View>
 
-        <TouchableOpacity style={styles.editButton} onPress={isEditing ? handleSave : handleEditToggle}>
-          <FontAwesome name={isEditing ? "save" : "pencil"} size={16} color="#32CD32" />
-          <Text style={styles.editButtonText}>{isEditing ? " Save" : " Edit bio"}</Text>
-        </TouchableOpacity>
-
-        {/* Taste Profile Badge */}
+        {/* Taste Profile Badge positioned between followers section and bio */}
         <View style={[styles.tasteProfileBadge, { backgroundColor: '#333' }]}>
           <View style={[styles.colorCircle, { backgroundColor: profile?.taste_profile_color || '#32CD32' }]} />
           <Text style={styles.tasteProfileText}>
             <Text style={styles.boldText}>Taste profile:</Text> {profile?.taste_profile_title}
           </Text>
         </View>
+
+        <View style={styles.bioContainer}>
+          {isEditing ? (
+            <TextInput
+              style={styles.bioInput}
+              value={bio}
+              onChangeText={setBio}
+              multiline
+            />
+          ) : (
+            <Text style={styles.bio}>{bio}</Text>
+          )}
+        </View>
+
+        <TouchableOpacity style={styles.editButton} onPress={isEditing ? handleSave : handleEditToggle}>
+          <FontAwesome name={isEditing ? "save" : "pencil"} size={16} color="#32CD32" />
+          <Text style={styles.editButtonText}>{isEditing ? " Save" : " Edit bio"}</Text>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.header}>Liked Songs</Text>
-      <LikedSongsList />
+
+      {profile?.liked_tracks?.length > 0 ? (
+        <LikedSongsList />
+      ) : (
+        <Text style={styles.noSongsText}>No liked songs yet</Text>
+      )}
     </View>
   );
 };
@@ -77,39 +96,67 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
+    marginBottom: 5,
+  },
+  // Followers/Following Container
+  followContainer: {
+    backgroundColor: '#B3A8F5', // Background for the container
+    borderRadius: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginBottom: 0,
+    alignItems: 'center',
+  },
+  followSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  followItem: {
+    alignItems: 'center',
+    marginHorizontal: 15,
+  },
+  followCount: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  followLabel: {
+    fontSize: 14,
+    color: '#444',
+  },
+  bioContainer: {
+    backgroundColor: '#8C9AF5',
+    padding: 10,
+    borderRadius: 10,
+    width: '80%',
+    marginTop: 5,
   },
   bio: {
     fontSize: 16,
-    marginTop: 10,
     color: '#fff',
-    width: '66%',
     textAlign: 'center',
   },
   bioInput: {
     fontSize: 16,
     color: '#fff',
-    width: '66%',
     textAlign: 'center',
-    backgroundColor: '#333',
-    padding: 8,
-    borderRadius: 5,
-    marginTop: 10,
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
     borderWidth: 1,
-    borderColor: '#32CD32', // Outline color
+    borderColor: '#32CD32',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
-    width: '25%', // Match width to the bio text
-    justifyContent: 'center', // Center the button content
+    width: '25%',
+    justifyContent: 'center',
+    marginBottom: 5,
   },
   editButtonText: {
     fontSize: 14,
-    color: '#32CD32', // Match bio text color
+    color: '#32CD32',
     marginLeft: 5,
   },
   tasteProfileBadge: {
@@ -119,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     borderRadius: 25,
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     marginVertical: 15,
   },
   colorCircle: {
@@ -143,6 +190,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     paddingHorizontal: 20,
+  },
+  noSongsText: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
